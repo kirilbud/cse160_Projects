@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Change a point color</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <img src="ref.jpg"  width="400" height="400"></img>
+    <p id="fps">Temp</p>
+
+    
+
+    <p></p>
+
+    <input type="button" id="clear" value="Clear canvas"/>
+    <input type="button" id="undo" value="Undo"/>
+    <input type="button" id="draw" value="Draw picture"/>
+
+    <p></p>
+    Shape select: 
+    <input type="button" id="point" value="Square"/>
+    <input type="button" id="tri" value="Triangle"/>
+    <input type="button" id="circle" value="Circle"/>
+
+    <p></p>
+    Red <input type="range" min="0" max="100" class="slider" value="100" id="redSlide">
+    Green <input type="range" min="0" max="100" class="slider" value="0" id="greenSlide">
+    Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueSlide">
+    Alpha <input type="range" min="0" max="100" class="slider" value="100" id="alphaSlide">
+
+    <p></p>
+    Size <input type="range" min="1" max="100" class="slider" value="10" id="sizeSlide">
+     Circle segments <input type="range" min="3" max="20" class="slider" value="10" id="segSlide">
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="ColoredPoints.js"></script>
+    
+  </body>
+</html>
