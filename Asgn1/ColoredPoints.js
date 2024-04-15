@@ -141,6 +141,8 @@ function addActions(){
   document.getElementById("greenBackSlide").addEventListener('mouseup', function(){g_selected_back_color[1] = this.value/100; changeBack()})
   document.getElementById("blueBackSlide").addEventListener('mouseup', function(){g_selected_back_color[2] = this.value/100; changeBack()})
 
+  //is this added?
+
   document.getElementById("sizeSlide").addEventListener('mouseup', function(){selected_size = this.value})
   document.getElementById("segSlide").addEventListener('mouseup', function(){circle_seg = this.value})
 }
