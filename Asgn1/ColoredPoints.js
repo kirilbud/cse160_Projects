@@ -1,4 +1,5 @@
 // ColoredPoint.js (c) 2012 matsuda
+//now modified by Kiril Saltz
 // Vertex shader program
 var VSHADER_SOURCE = 
   'attribute vec4 a_Position;\n' +
@@ -31,6 +32,7 @@ let a_Position;
 let u_Size;
 let u_FragColor;
 var g_selected_color = [1,0,0,1];
+var g_selected_back_color = [0,0,0,1];
 let selected_size = 10.0;
 var gl_shapelist = [];
 var gl_undolist = [];
@@ -132,10 +134,20 @@ function addActions(){
   document.getElementById("redSlide").addEventListener('mouseup', function(){g_selected_color[0] = this.value/100})
   document.getElementById("greenSlide").addEventListener('mouseup', function(){g_selected_color[1] = this.value/100})
   document.getElementById("blueSlide").addEventListener('mouseup', function(){g_selected_color[2] = this.value/100})
-  document.getElementById("alphaSlide").addEventListener('mouseup', function(){g_selected_color[3] = this.value/100})
+  //document.getElementById("alphaSlide").addEventListener('mouseup', function(){g_selected_color[3] = this.value/100})
+
+  //background color sliders
+  document.getElementById("redBackSlide").addEventListener('mouseup', function(){g_selected_back_color[0] = this.value/100; changeBack()})
+  document.getElementById("greenBackSlide").addEventListener('mouseup', function(){g_selected_back_color[1] = this.value/100; changeBack()})
+  document.getElementById("blueBackSlide").addEventListener('mouseup', function(){g_selected_back_color[2] = this.value/100; changeBack()})
 
   document.getElementById("sizeSlide").addEventListener('mouseup', function(){selected_size = this.value})
   document.getElementById("segSlide").addEventListener('mouseup', function(){circle_seg = this.value})
+}
+
+function changeBack(){
+  gl.clearColor(g_selected_back_color[0], g_selected_back_color[1], g_selected_back_color[2], 1.0);
+  renderAllShapes();
 }
 
 function main() {

@@ -17,7 +17,7 @@
     <p></p>
 
     <input type="button" id="clear" value="Clear canvas"/>
-    <input type="button" id="undo" value="Undo"/>
+    <input type="button" id="undo" value="Undo last drawn objects"/>
     <input type="button" id="draw" value="Draw picture"/>
 
     <p></p>
@@ -27,10 +27,19 @@
     <input type="button" id="circle" value="Circle"/>
 
     <p></p>
+    Shape color:
+    <p></p>
     Red <input type="range" min="0" max="100" class="slider" value="100" id="redSlide">
     Green <input type="range" min="0" max="100" class="slider" value="0" id="greenSlide">
     Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueSlide">
-    Alpha <input type="range" min="0" max="100" class="slider" value="100" id="alphaSlide">
+
+
+    <p></p>
+    Background color:
+    <p></p>
+    Red <input type="range" min="0" max="100" class="slider" value="0" id="redBackSlide">
+    Green <input type="range" min="0" max="100" class="slider" value="0" id="greenBackSlide">
+    Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueBackSlide">
 
     <p></p>
     Size <input type="range" min="1" max="100" class="slider" value="10" id="sizeSlide">
