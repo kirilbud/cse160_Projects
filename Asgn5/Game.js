@@ -77,9 +77,14 @@ function main(){
     //create geometry
     const shapes = [
         makeInstance(box, 0xF5A9B8,  0, 1),
-        makeInstance(cone, 0xFFFFFF, -3, 0),
+        makeInstance(cone, 0xF5A9B8, -3, 0),
         makeInstance(geometry, 0x5BCEFA,  3, 0),
     ];
+
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load( './Imgs/silly.jpg' );
+    texture.colorSpace = THREE.SRGBColorSpace;
+    shapes[0].material =  new THREE.MeshBasicMaterial({map: texture});
 
     //create material using css hex codes
     //const material = new THREE.MeshBasicMaterial({color: 0x44aa88}); //MeshBasicMaterial is not affected by lights
