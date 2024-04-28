@@ -101,7 +101,7 @@ class Custom{
     }
 
     generate_mesh(lines) { //parse the obj file into usable data
-      console.log(lines);
+      //console.log(lines);
       let current_mat = null;
 
       for (let i = 0; i < lines.length; i++) {
@@ -133,12 +133,12 @@ class Custom{
         this.makeObjs();
       }
       this.finished_parsing_obj = true;
-      console.log(this.verts)
-      console.log(this.faces) 
+      //console.log(this.verts)
+      //console.log(this.faces) 
     }
 
     generate_mats(lines) {// parse the mtl file into usable data
-      console.log(lines);
+      //console.log(lines);
       let current_mat = null;
 
       for (let i = 0; i < lines.length; i++) {
@@ -161,7 +161,7 @@ class Custom{
         this.makeObjs();
       }
       this.finished_parsing_mtl = true;
-      console.log(this.mats)
+      //console.log(this.mats)
     }
 
     makeObjs(){
@@ -175,7 +175,7 @@ class Custom{
 
         for (let i = 0; i < indexs.length; i++) {
           const element = indexs[i];
-          console.log();
+          //console.log();
           mesh.verts.push(this.verts[element*3])
           mesh.verts.push(this.verts[element*3+1])
           mesh.verts.push(this.verts[element*3+2])

@@ -260,7 +260,18 @@ function tick(){
 }
 
 let head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl")
+
 let body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl")
+
+let legLeft =  new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
+let legRight =  new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
+
+let armLeft =  new Custom("./Objs/low_poly_raccoon_armLeft.obj", "./Objs/low_poly_raccoon_armLeft.mtl");
+let armRight =  new Custom("./Objs/low_poly_raccoon_armRight.obj", "./Objs/low_poly_raccoon_armRight.mtl");
+
+let tail1 =  new Custom("./Objs/low_poly_raccoon_tail_1.obj", "./Objs/low_poly_raccoon_tail_1.mtl");
+let tail2 =  new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_raccoon_tail_2.mtl");
+
 
 function renderAllShapes(){
   //start timer for performance tracking
@@ -291,19 +302,74 @@ function renderAllShapes(){
 
   //test cube for obj loader
   //var cube = new Custom("./Objs/cube.obj", "./Objs/cube.mtl")
-  
-  if (head.finished_making_objs) {
-    head.matrix.setTranslate(0,-.1,0.0)
-    head.render();
-  }
 
-  //console.log(body)
-
+  //body
+  let bodyCords;
   if (body.finished_making_objs) {
     body.matrix.setTranslate(0,-.5,0.0)
+    body.matrix.rotate(90,0,1.0,0)
+    bodyCords = new Matrix4(body.matrix);
     body.render();
     //console.log(body)
   }
+  
+
+  
+  //head
+  if (head.finished_making_objs) {
+    head.matrix = new Matrix4(bodyCords)
+    head.matrix.translate(0,+.4,0.0)
+    head.render();
+  }
+
+
+  //legs
+  if (legLeft.finished_making_objs) {
+    legLeft.matrix = new Matrix4(bodyCords)
+    legLeft.matrix.translate(0,-.01,-.06)
+    legLeft.render();
+  }
+
+  if (legRight.finished_making_objs) {
+    legRight.matrix = new Matrix4(bodyCords)
+    legRight.matrix.translate(0,-.01,+.06)
+    legRight.render();
+  }
+
+  //arms
+  if (armLeft.finished_making_objs) {
+    armLeft.matrix = new Matrix4(bodyCords)
+    armLeft.matrix.translate(0,+.31,+.15)
+    armLeft.render();
+  }
+
+  if (armRight.finished_making_objs) {
+    armRight.matrix = new Matrix4(bodyCords)
+    armRight.matrix.translate(0,+.31,-.15)
+    armRight.render();
+  }
+
+  let tailspace;
+  if (tail1.finished_making_objs) {
+    tail1.matrix = new Matrix4(bodyCords)
+    tail1.matrix.translate(-.15 ,+.05,0)
+    tailspace = new Matrix4(tail1.matrix)
+    tail1.render();
+  }
+
+  if (tail2.finished_making_objs) {
+    tail2.matrix = new Matrix4(tailspace)
+    tail2.matrix.translate(-.2,0,0)
+    tail2.render();
+  }
+
+  //tails
+
+
+
+  //console.log(body)
+
+
   
 
   //draw grass floor
@@ -313,6 +379,8 @@ function renderAllShapes(){
   grass.matrix.scale(1,.1, 1)
   grass.render();
 
+
+  /*
   //drawing body also replace this
   var something = new Cube();
   something.color = [1.0,0.0,0.0,1.0]
@@ -344,6 +412,8 @@ function renderAllShapes(){
   //box.matrix.rotate(-30,1,0,0)
   box.matrix.scale(.2,.4,.2)
   box.render()
+
+  */
 
 
 
