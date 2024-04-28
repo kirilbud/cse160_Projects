@@ -11,26 +11,39 @@
     </canvas>
     <p id="fps">Temp</p>
 
-    
-
     <p></p>
-
-    <input type="button" id="clear" value="Clear canvas"/>
-    <input type="button" id="undo" value="Undo last drawn objects"/>
-    <input type="button" id="draw" value="Draw picture"/>
-
+    Animation 
+    <input type="button" id="on" value="on"/>
+    <input type="button" id="off" value="off"/>
     <p></p>
-    Shape select: 
-    <input type="button" id="point" value="Square"/>
-    <input type="button" id="tri" value="Triangle"/>
-    <input type="button" id="circle" value="Circle"/>
+    Animal select:
+    <select name="Animals" id="Animals">
+      <option value="Rac">Raccoon</option>
+      <option value="Gat">Gator</option>
+    </select>
+
+    First Hat Select:
+    <select name="hats" id="hat1">
+      <option value="">--Select First Hat--</option>
+      <option value="cap">Purple Cap</option>
+      <option value="sun">Sun Hat</option>
+      <option value="old">Fantasy</option>
+    </select>
+
+    Second Hat Select:
+    <select name="hats" id="hat2">
+      <option value="">--Select Second Hat--</option>
+      <option value="cap">Purple Cap</option>
+      <option value="sun">Sun Hat</option>
+      <option value="old">Fantasy</option>
+    </select>
 
     <p></p>
     Shape color:
     <p></p>
     Camera <input type="range" min="0" max="360" class="slider" value="0" id="camera_slide">
-    yellow slider <input type="range" min="0" max="360" class="slider" value="0" id="yellow_slide">
-    magenta slider <input type="range" min="0" max="360" class="slider" value="0" id="magenta_slide">
+    First Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="yellow_slide">
+    Second Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="magenta_slide">
 
     <p></p>
     Background color:
@@ -62,7 +75,13 @@
     <br>
     Movement by clicking and dragging mouse
     <br>
+    Change background color
+    <br>
     obj loader
+    <br>
+    HATS!!!! (first hat must be selected to see second hat)
+    <br>
+    second hat will be offset depending on first hat
     
     
   </body>

@@ -25,6 +25,7 @@ class Mesh{
       }
     }
 
+    //the following method is from lab2 but to work with the full mesh
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements)
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -185,6 +186,7 @@ class Custom{
 
       }
       this.finished_making_objs = true;
+      //console.log(this)
     }
   
     render(){

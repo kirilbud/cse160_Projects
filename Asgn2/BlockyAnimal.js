@@ -117,19 +117,67 @@ function connectVariablesToGLSL(){
 
 }
 
-function addActions(){
-  //clear button
-  document.getElementById("clear").onclick = function() { g_colors = []; gl_shapelist = [];gl_undolist = []; gl.clear(gl.COLOR_BUFFER_BIT);}
-  //undo
-  document.getElementById("undo").onclick = function() {undo()};
+var hat1 = null;
+var hat2 = null;
 
-  //draw pic
-  document.getElementById("draw").onclick = function() {drawPic()};
+var hat2_offset = 0;
+
+function sethat1(val){//selects hat one yes i know there is a better way but im lazy
+  switch (val) {
+    case "":
+      hat1 = null;
+      hat2_offset = 0;
+      break;
+    case "cap":
+      hat1 = new Custom("./Hats/cap.obj", "./Hats/cap.mtl");
+      hat2_offset = .10;
+      break;
+    case "sun":
+      hat1 = new Custom("./Hats/sun_hat.obj", "./Hats/sun_hat.mtl");
+      hat2_offset = .15;
+      break;
+    case "old":
+      hat1 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
+      hat2_offset = .15;
+      break;
+    default:
+      hat1 = null;
+      hat2_offset = 0;
+      break;
+  }
+}
+
+function sethat2(val){//is this basically the last function? yes, am I going to do something about it? no
+  switch (val) {
+    case "":
+      hat2 = null;
+      break;
+    case "cap":
+      hat2 = new Custom("./Hats/cap.obj", "./Hats/cap.mtl");
+      break;
+    case "sun":
+      hat2 = new Custom("./Hats/sun_hat.obj", "./Hats/sun_hat.mtl");
+      break;
+    case "old":
+      hat2 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
+      break;
+    default:
+      hat2 = null;
+      break;
+  }
+}
+
+function addActions(){
+
+  //hat select
+  document.getElementById("hat1").addEventListener('click',function(){ sethat1(this.value)})
+  
+  document.getElementById("hat2").addEventListener('click',function(){ sethat2(this.value)})
 
   //shape select
-  document.getElementById("point").onclick = function() { g_selected_shape = POINT}
-  document.getElementById("tri").onclick = function() { g_selected_shape = TRI}
-  document.getElementById("circle").onclick = function() { g_selected_shape = CIRCLE}
+  //document.getElementById("point").onclick = function() { g_selected_shape = POINT}
+  //document.getElementById("tri").onclick = function() { g_selected_shape = TRI}
+  //document.getElementById("circle").onclick = function() { g_selected_shape = CIRCLE}
 
   //check change in sliders
   document.getElementById("camera_slide").addEventListener('mousemove',function(){ global_angle_x = this.valueAsNumber; renderAllShapes()})
@@ -177,7 +225,9 @@ function main() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  renderAllShapes();
+  //renderAllShapes();
+
+  requestAnimationFrame(tick)
 }
 
 
@@ -227,6 +277,8 @@ function click(ev) {
   }
 
   renderAllShapes();
+
+  
 }
 
 function undo(){
@@ -252,16 +304,23 @@ function convertToGLSpace(ev){
   return ([x,y]);
 }
 
-function tick(){
-  //debug ah code
-  console.log(performance.now())
 
-  
+var g_startTime = performance.now()/1000.0;
+var g_seconds = performance.now()/1000.0-g_startTime;
+
+function tick(){
+  //console.log("performance.now = " + performance.now())
+
+  renderAllShapes()
+  //console.log("delta = " + delta);
+  g_seconds = performance.now()/1000.0-g_startTime;
+  requestAnimationFrame(tick);
+
 }
 
-let head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl")
+let head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
 
-let body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl")
+let body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
 
 let legLeft =  new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
 let legRight =  new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
@@ -274,6 +333,7 @@ let tail2 =  new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_r
 
 
 function renderAllShapes(){
+  //console.log("Hello!!")
   //start timer for performance tracking
   var start_time = performance.now()
 
@@ -308,6 +368,8 @@ function renderAllShapes(){
   if (body.finished_making_objs) {
     body.matrix.setTranslate(0,-.5,0.0)
     body.matrix.rotate(90,0,1.0,0)
+    body.matrix.rotate(10*Math.sin(g_seconds*4),0,1,0);
+    body.matrix.translate(0,.02*Math.cos(g_seconds*8-.3),0.0)
     bodyCords = new Matrix4(body.matrix);
     body.render();
     //console.log(body)
@@ -316,23 +378,31 @@ function renderAllShapes(){
 
   
   //head
+  let headSpace;
   if (head.finished_making_objs) {
     head.matrix = new Matrix4(bodyCords)
     head.matrix.translate(0,+.4,0.0)
+    //head.matrix.translate(0,.2*Math.sin(g_seconds*3),0.0)
+    //head.matrix.rotate(-10*Math.sin(g_seconds*5),0,1,0);
+    head.matrix.rotate(-10*Math.sin(g_seconds*3),1,0,0);
+    headSpace = new Matrix4(head.matrix)
     head.render();
   }
 
+  //console.log(g_magenta_ang)
 
   //legs
   if (legLeft.finished_making_objs) {
     legLeft.matrix = new Matrix4(bodyCords)
-    legLeft.matrix.translate(0,-.01,-.06)
+    legLeft.matrix.translate(0,-.03,-.06)
+    legLeft.matrix.rotate(45*Math.sin(g_seconds*4),0,0,1);
     legLeft.render();
   }
 
   if (legRight.finished_making_objs) {
     legRight.matrix = new Matrix4(bodyCords)
-    legRight.matrix.translate(0,-.01,+.06)
+    legRight.matrix.translate(0,-.03,+.06)
+    legRight.matrix.rotate(-45*Math.sin(g_seconds*4),0,0,1);
     legRight.render();
   }
 
@@ -340,19 +410,23 @@ function renderAllShapes(){
   if (armLeft.finished_making_objs) {
     armLeft.matrix = new Matrix4(bodyCords)
     armLeft.matrix.translate(0,+.31,+.15)
+    armLeft.matrix.rotate(10*Math.sin(g_seconds*4),0,0,1);
     armLeft.render();
   }
 
   if (armRight.finished_making_objs) {
     armRight.matrix = new Matrix4(bodyCords)
     armRight.matrix.translate(0,+.31,-.15)
+    armRight.matrix.rotate(-10*Math.sin(g_seconds*4),0,0,1);
     armRight.render();
   }
 
+  //tails
   let tailspace;
   if (tail1.finished_making_objs) {
     tail1.matrix = new Matrix4(bodyCords)
     tail1.matrix.translate(-.15 ,+.05,0)
+    tail1.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
     tailspace = new Matrix4(tail1.matrix)
     tail1.render();
   }
@@ -360,10 +434,34 @@ function renderAllShapes(){
   if (tail2.finished_making_objs) {
     tail2.matrix = new Matrix4(tailspace)
     tail2.matrix.translate(-.2,0,0)
+    //tail2.matrix.rotate(45,0,1,0)
+    tail2.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
     tail2.render();
   }
 
-  //tails
+  //hats
+  let hatSpace;
+  if (!(hat1 === null) && hat1.finished_making_objs ) {
+    hat1.matrix = new Matrix4(headSpace)
+    hat1.matrix.translate(0,+.44,0)
+    //tail2.matrix.rotate(45,0,1,0)
+    hat1.matrix.rotate(g_yellow_ang,0,1,0);
+    hatSpace = new Matrix4(hat1.matrix)
+    hat1.render();
+  }
+
+  if (!(hat1 === null) && !(hat2 === null) && hat2.finished_making_objs ) {
+    hat2.matrix = new Matrix4(hatSpace)
+    hat2.matrix.translate(0,hat2_offset,0)
+    //tail2.matrix.rotate(45,0,1,0)
+    hat2.matrix.rotate(g_magenta_ang,0,1,0);
+    
+    hat2.render();
+  }
+
+  
+
+  
 
 
 
@@ -423,7 +521,7 @@ function renderAllShapes(){
 
   //check end of performance and put on the page
   var duration = performance.now() - start_time;
-  TextToHTML("number of shapes: " +"len" + " ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), "fps")
+  TextToHTML("ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), "fps")
   
 }
 
@@ -438,187 +536,3 @@ function TextToHTML(string, htmlID){
   html.innerHTML = string;
 }
 
-function draw_tri(x1, y1, x2, y2, x3, y3){
-  
-  let cords = [0,0, 0,0, 0,0]
-  cords = [x1, y1, x2, y2, x3, y3]
-  //console.log(cords)
-  cords = convertFromPic(cords);
-  drawTriangle(cords);
-}
-
-function drawPic(){
-  //console.log("yeah")
-  let verts = [0,0, 0,0, 0,0];
-  //draw sky
-  gl.uniform4f(u_FragColor, .60, .60, 1, 1);
-  //draw_tri(0,0, 25,0, 25,25)
-
-  //draw_tri(0,0, 0,25, 25,25)
-
-
-  // draw clouds
-
-  gl.uniform4f(u_FragColor, 1, 1, 1, 1);
-  //cloud 1
-  draw_tri(0,25, 3,25, 0,21)
-
-  draw_tri(3,20, 3,25, 0,21)
-
-  draw_tri(3,20, 3,25, 4,20)
-
-  draw_tri(5,21, 3,25, 4,20)
-
-  draw_tri(5,21, 3,25, 8,25)
-
-  draw_tri(5,21, 7,20, 8,25)
-
-  draw_tri(8,20, 7,20, 8,25)
-
-  draw_tri(8,20, 10,21, 8,25)
-
-  draw_tri(10,24, 10,21, 8,25)
-
-  draw_tri(10,24, 10,21, 11,22)
-
-  draw_tri(10,24, 11,23, 11,22)
-
-  //cloud 2
-
-  draw_tri(20,24, 17,23, 17,21)
-
-  draw_tri(20,24, 19,20, 17,21)
-
-  draw_tri(20,24, 19,20, 20,20)
-
-  draw_tri(20,24, 22,21, 20,20)
-
-  draw_tri(20,24, 22,21, 23,23)
-
-  draw_tri(20,24, 22,24, 23,23)
-
-
-  // draw grass
-  gl.uniform4f(u_FragColor, .3, .7, .3, 1);
-  draw_tri(0,0, 25,5, 0,5)
-
-  draw_tri(0,0, 25,5, 25,0)
-
-  //draw light grey raccoon
-  gl.uniform4f(u_FragColor, .75, .75, .75, 1);
-
-  draw_tri(0,7, 1,8, 0,11)
-
-  draw_tri(1,12, 2,13, 2,9)
-
-  draw_tri(3,10, 2,13, 2,9)
-
-  draw_tri(3,10, 2,13, 4,16)
-
-  draw_tri(3,10, 8,17, 4,16)
-
-  draw_tri(3,10, 8,17, 9,10)
-
-  draw_tri(9,17, 8,17, 9,10)
-
-  draw_tri(9,17, 12,10, 9,10)
-
-  draw_tri(9,17, 12,10, 13,16)
-
-  draw_tri(17,12, 12,10, 13,16)
-
-  draw_tri(17,12, 12,10, 17,10)
-
-  draw_tri(17,12, 13,16, 16,15)
-
-  draw_tri(17,12, 17,14, 16,15)
-
-  draw_tri(18,16, 17,14, 16,15)
-
-  draw_tri(18,16, 17,14, 18,15)
-
-  draw_tri(18,16, 19,15, 18,15)
-
-  draw_tri(18,16, 19,15, 20,15)
-
-  draw_tri(20,14, 19,15, 20,15)
-
-  draw_tri(20,14, 21,14, 20,15)
-
-  //self note middle
-  draw_tri(20,14, 21,14, 20,11)
-
-  draw_tri(22,12, 21,14, 20,11)
-
-  draw_tri(22,12, 21,14, 23,14)
-  //end self note
-  draw_tri(20,14, 18,12, 20,11)
-
-  draw_tri(20,11, 18,12, 17,10)
-
-  draw_tri(20,11, 18,12, 17,10)
-
-  draw_tri(17,12, 18,12, 17,10)
-
-
-  draw_tri(12,10, 15,10, 14,6)
-
-  draw_tri(16,6, 15,10, 14,6)
-
-  draw_tri(16,6, 16,5, 14,6)
-
-  draw_tri(16,6, 16,5, 18,5)
-
-
-  draw_tri(3,10, 9,10, 4,8)
-
-  draw_tri(8,8, 9,10, 4,8)
-
-  draw_tri(8,8, 7,7, 4,8)
-
-  draw_tri(6,6, 7,7, 4,8)
-
-  draw_tri(6,6, 7,7, 7,5)
-
-  draw_tri(7,6, 7,5, 9,5)
-
-
-  draw_tri(16,15, 16,16, 17,17)
-
-  draw_tri(16,15, 18,16, 17,17)
-
-  //draw dark grey raccon
-
-  gl.uniform4f(u_FragColor, .25, .25, .25, 1);
-  draw_tri(0,11, 1,8, 1,12)
-
-  draw_tri(2,9, 1,8, 1,12)
-
-
-  draw_tri(18,15, 17,14, 17,12)
-
-  draw_tri(18,15, 18,12, 17,12)
-
-  draw_tri(18,15, 18,12, 20,14)
-
-  draw_tri(18,15, 19,15, 20,14)
-
-  //draw eye
-
-  let point = new Point()
-
-  point.position = [((18.9 / 25)*2 - 1) ,((14.2 / 25)*2 - 1)];
-  point.color = [0,0,0,1];
-  point.size = 10;
-
-  point.render()
-}
-
-function convertFromPic(verts){
-
-  for (let index = 0; index < 6; index++) {
-    verts[index] = (verts[index] / 25)*2 - 1 
-  }
-
-  return verts;
-}
