@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>the blocky buds</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p id="fps">Temp</p>
+
+    
+
+    <p></p>
+
+    <input type="button" id="clear" value="Clear canvas"/>
+    <input type="button" id="undo" value="Undo last drawn objects"/>
+    <input type="button" id="draw" value="Draw picture"/>
+
+    <p></p>
+    Shape select: 
+    <input type="button" id="point" value="Square"/>
+    <input type="button" id="tri" value="Triangle"/>
+    <input type="button" id="circle" value="Circle"/>
+
+    <p></p>
+    Shape color:
+    <p></p>
+    Camera <input type="range" min="0" max="360" class="slider" value="0" id="camera_slide">
+    yellow slider <input type="range" min="0" max="360" class="slider" value="0" id="yellow_slide">
+    magenta slider <input type="range" min="0" max="360" class="slider" value="0" id="magenta_slide">
+
+    <p></p>
+    Background color:
+    <p></p>
+    Red <input type="range" min="0" max="100" class="slider" value="0" id="redBackSlide">
+    Green <input type="range" min="0" max="100" class="slider" value="0" id="greenBackSlide">
+    Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueBackSlide">
+
+    <p></p>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Custom.js"></script>
+    <script src="BlockyAnimal.js"></script>
+
+    <br>
+    created by Kiril Saltz
+    <br>
+    
+    School email: ksaltz@ucsc.edu
+    <br>
+    My Features:
+    <br>
+    obj loader
+    
+    
+  </body>
+</html>
