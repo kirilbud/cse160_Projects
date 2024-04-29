@@ -6,6 +6,8 @@
   </head>
 
   <body onload="main()">
+
+
     <canvas id="webgl" width="400" height="400">
     Please use a browser that supports "canvas"
     </canvas>
@@ -13,8 +15,8 @@
 
     <p></p>
     Animation 
-    <input type="button" id="on" value="on"/>
-    <input type="button" id="off" value="off"/>
+    <input type="button" id="on" value="pause/resume"/>
+    
     <p></p>
     Animal select:
     <select name="Animals" id="Animals">
@@ -28,6 +30,7 @@
       <option value="cap">Purple Cap</option>
       <option value="sun">Sun Hat</option>
       <option value="old">Fantasy</option>
+      <option value="top">Top Hat</option>
     </select>
 
     Second Hat Select:
@@ -36,6 +39,7 @@
       <option value="cap">Purple Cap</option>
       <option value="sun">Sun Hat</option>
       <option value="old">Fantasy</option>
+      <option value="top">Top Hat</option>
     </select>
 
     <p></p>
@@ -77,11 +81,15 @@
     <br>
     Change background color
     <br>
-    obj loader
+    obj loader (basic/must have specific export requirements)
     <br>
     HATS!!!! (first hat must be selected to see second hat)
     <br>
     second hat will be offset depending on first hat
+    <br>
+    select between 2 animals
+    <br>
+    shift+click to switch animations
     
     
   </body>

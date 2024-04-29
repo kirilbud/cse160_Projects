@@ -20,9 +20,9 @@ var FSHADER_SOURCE =
 
 //GLOBAL VARIALBLES -----------------------
 //const for selection
-const POINT = 0;
-const TRI = 1;
-const CIRCLE = 2;
+//const POINT = 0;
+//const TRI = 1;
+//const CIRCLE = 2;
 
 let drawing = false;
 
@@ -45,16 +45,18 @@ let g_magenta_ang = 0;
 
 var g_selected_color = [1,0,0,1];
 var g_selected_back_color = [0,0,0,1];
-let selected_size = 10.0;
-var gl_shapelist = [];
-var gl_undolist = [];
-var undo_amount = 0;
+//let selected_size = 10.0;
+//var gl_shapelist = [];
+//var gl_undolist = [];
+//var undo_amount = 0;
 
-let circle_seg = 10;
+//let circle_seg = 10;
 
-let g_selected_shape = POINT;
+//let g_selected_shape = POINT;
 
+let g_animating = true;
 
+let g_walking = true;
 
 
 
@@ -140,6 +142,10 @@ function sethat1(val){//selects hat one yes i know there is a better way but im 
       hat1 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
       hat2_offset = .15;
       break;
+    case "top":
+      hat1 = new Custom("./Hats/top_hat.obj", "./Hats/top_hat.mtl");
+      hat2_offset = .38;
+      break;
     default:
       hat1 = null;
       hat2_offset = 0;
@@ -161,18 +167,79 @@ function sethat2(val){//is this basically the last function? yes, am I going to 
     case "old":
       hat2 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
       break;
+    case "top":
+      hat2 = new Custom("./Hats/top_hat.obj", "./Hats/top_hat.mtl");
+      break;
     default:
       hat2 = null;
       break;
   }
 }
 
+function setAnimal(val){//is this basically the last function? yes, am I going to do something about it? no
+  switch (val) {
+    case "Rac":// raccoon ====================================================================================
+      head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
+
+      body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
+      
+
+      legLeft =  new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
+      legRight =  new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
+
+      armLeft =  new Custom("./Objs/low_poly_raccoon_armLeft.obj", "./Objs/low_poly_raccoon_armLeft.mtl");
+      armRight =  new Custom("./Objs/low_poly_raccoon_armRight.obj", "./Objs/low_poly_raccoon_armRight.mtl");
+
+      tail1 =  new Custom("./Objs/low_poly_raccoon_tail_1.obj", "./Objs/low_poly_raccoon_tail_1.mtl");
+      tail2 =  new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_raccoon_tail_2.mtl");
+      break;
+    case "Gat": //gator========================================================================================
+      head = new Custom("./Gator/gator_head.obj", "./Gator/gator_head.mtl");
+
+      body = new Custom("./Gator/gator_body.obj", "./Gator/gator_body.mtl");
+      
+
+      legLeft =  new Custom("./Gator/gator_left_leg.obj", "./Gator/gator_left_leg.mtl");
+      legRight =  new Custom("./Gator/gator_right_leg.obj", "./Gator/gator_right_leg.mtl");
+
+      armLeft =  new Custom("./Gator/gator_left_arm.obj", "./Gator/gator_left_arm.mtl");
+      armRight =  new Custom("./Gator/gator_right_arm.obj", "./Gator/gator_right_arm.mtl");
+
+      tail1 =  new Custom("./Gator/gator_tail1.obj", "./Gator/gator_tail1.mtl");
+      tail2 =  new Custom("./Gator/gator_tail2.obj", "./Gator/gator_tail2.mtl");
+      break;
+    default://set defualt to raccoon===========================================================================
+      head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
+
+      body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
+      
+
+      legLeft =  new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
+      legRight =  new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
+
+      armLeft =  new Custom("./Objs/low_poly_raccoon_armLeft.obj", "./Objs/low_poly_raccoon_armLeft.mtl");
+      armRight =  new Custom("./Objs/low_poly_raccoon_armRight.obj", "./Objs/low_poly_raccoon_armRight.mtl");
+
+      tail1 =  new Custom("./Objs/low_poly_raccoon_tail_1.obj", "./Objs/low_poly_raccoon_tail_1.mtl");
+      tail2 =  new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_raccoon_tail_2.mtl");
+
+      break;
+  }
+}
+
+
 function addActions(){
+
+  //on off switch
+  document.getElementById("on").onclick = function() {g_animating = !g_animating}
+  //document.getElementById("off").onclick = function() {g_animating = false}
 
   //hat select
   document.getElementById("hat1").addEventListener('click',function(){ sethat1(this.value)})
   
   document.getElementById("hat2").addEventListener('click',function(){ sethat2(this.value)})
+
+  document.getElementById("Animals").addEventListener('click',function(){ setAnimal(this.value)})
 
   //shape select
   //document.getElementById("point").onclick = function() { g_selected_shape = POINT}
@@ -215,7 +282,7 @@ function main() {
   addActions();
 
   // Register function (event handler) to be called on a mouse press
-  //canvas.onmousedown = function(ev){ click(ev); gl_undolist.push(1) };
+  canvas.onclick = function(ev){ if (ev.shiftKey){g_walking = !g_walking} };
 
   canvas.onmousemove = function(ev){ if (ev.buttons == 1) { click(ev); }else{pre_mouse_pos = null} };
 
@@ -307,13 +374,23 @@ function convertToGLSpace(ev){
 
 var g_startTime = performance.now()/1000.0;
 var g_seconds = performance.now()/1000.0-g_startTime;
+var g_pauseTime = 0;
 
 function tick(){
   //console.log("performance.now = " + performance.now())
 
   renderAllShapes()
   //console.log("delta = " + delta);
-  g_seconds = performance.now()/1000.0-g_startTime;
+
+  if (g_animating) {
+    g_seconds = (performance.now()/1000.0-g_startTime) - g_pauseTime ;
+  }else{
+    g_pauseTime = (performance.now()/1000.0-g_startTime) -g_seconds ;
+  }
+  
+
+
+
   requestAnimationFrame(tick);
 
 }
@@ -321,6 +398,7 @@ function tick(){
 let head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
 
 let body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
+//let body = new Custom("./Gator/gator_body.obj", "./Gator/gator_body.mtl");
 
 let legLeft =  new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
 let legRight =  new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
@@ -352,111 +430,213 @@ function renderAllShapes(){
   //let matrix = new Matrix4()
   //gl.uniformMatrix4fv(u_ModelMatrix, false, matrix)
   //drawTriangle3D([-1.0,0.0,0.0,  -0.5,-1.0,0.0,  0.0,0.0,0,0])
-
   var globalRotMax = new Matrix4()
   globalRotMax.rotate(-10 + global_angle_y, 1, 0, 0);
   globalRotMax.rotate(global_angle_x, 0, 1, 0);
-  
-  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMax.elements)
-  
-
-  //test cube for obj loader
-  //var cube = new Custom("./Objs/cube.obj", "./Objs/cube.mtl")
-
-  //body
-  let bodyCords;
-  if (body.finished_making_objs) {
-    body.matrix.setTranslate(0,-.5,0.0)
-    body.matrix.rotate(90,0,1.0,0)
-    body.matrix.rotate(10*Math.sin(g_seconds*4),0,1,0);
-    body.matrix.translate(0,.02*Math.cos(g_seconds*8-.3),0.0)
-    bodyCords = new Matrix4(body.matrix);
-    body.render();
-    //console.log(body)
-  }
-  
-
-  
-  //head
-  let headSpace;
-  if (head.finished_making_objs) {
-    head.matrix = new Matrix4(bodyCords)
-    head.matrix.translate(0,+.4,0.0)
-    //head.matrix.translate(0,.2*Math.sin(g_seconds*3),0.0)
-    //head.matrix.rotate(-10*Math.sin(g_seconds*5),0,1,0);
-    head.matrix.rotate(-10*Math.sin(g_seconds*3),1,0,0);
-    headSpace = new Matrix4(head.matrix)
-    head.render();
-  }
-
-  //console.log(g_magenta_ang)
-
-  //legs
-  if (legLeft.finished_making_objs) {
-    legLeft.matrix = new Matrix4(bodyCords)
-    legLeft.matrix.translate(0,-.03,-.06)
-    legLeft.matrix.rotate(45*Math.sin(g_seconds*4),0,0,1);
-    legLeft.render();
-  }
-
-  if (legRight.finished_making_objs) {
-    legRight.matrix = new Matrix4(bodyCords)
-    legRight.matrix.translate(0,-.03,+.06)
-    legRight.matrix.rotate(-45*Math.sin(g_seconds*4),0,0,1);
-    legRight.render();
-  }
-
-  //arms
-  if (armLeft.finished_making_objs) {
-    armLeft.matrix = new Matrix4(bodyCords)
-    armLeft.matrix.translate(0,+.31,+.15)
-    armLeft.matrix.rotate(10*Math.sin(g_seconds*4),0,0,1);
-    armLeft.render();
-  }
-
-  if (armRight.finished_making_objs) {
-    armRight.matrix = new Matrix4(bodyCords)
-    armRight.matrix.translate(0,+.31,-.15)
-    armRight.matrix.rotate(-10*Math.sin(g_seconds*4),0,0,1);
-    armRight.render();
-  }
-
-  //tails
-  let tailspace;
-  if (tail1.finished_making_objs) {
-    tail1.matrix = new Matrix4(bodyCords)
-    tail1.matrix.translate(-.15 ,+.05,0)
-    tail1.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
-    tailspace = new Matrix4(tail1.matrix)
-    tail1.render();
-  }
-
-  if (tail2.finished_making_objs) {
-    tail2.matrix = new Matrix4(tailspace)
-    tail2.matrix.translate(-.2,0,0)
-    //tail2.matrix.rotate(45,0,1,0)
-    tail2.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
-    tail2.render();
-  }
-
-  //hats
-  let hatSpace;
-  if (!(hat1 === null) && hat1.finished_making_objs ) {
-    hat1.matrix = new Matrix4(headSpace)
-    hat1.matrix.translate(0,+.44,0)
-    //tail2.matrix.rotate(45,0,1,0)
-    hat1.matrix.rotate(g_yellow_ang,0,1,0);
-    hatSpace = new Matrix4(hat1.matrix)
-    hat1.render();
-  }
-
-  if (!(hat1 === null) && !(hat2 === null) && hat2.finished_making_objs ) {
-    hat2.matrix = new Matrix4(hatSpace)
-    hat2.matrix.translate(0,hat2_offset,0)
-    //tail2.matrix.rotate(45,0,1,0)
-    hat2.matrix.rotate(g_magenta_ang,0,1,0);
     
-    hat2.render();
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMax.elements)
+
+  if (!g_walking) {//waving animation ++++++++++++++++++++++++++++++++++++++++++++++ waving animation ++++++++++++++++++++++++++
+    //body
+    let bodyCords;
+    if (body.finished_making_objs) {
+      body.matrix.setTranslate(0,-.5,0.0)
+      body.matrix.rotate(90,0,1.0,0)
+      body.matrix.rotate(10*Math.sin(g_seconds*4)-15,1,0,0);
+      //body.matrix.translate(0,.02*Math.cos(g_seconds*8-.3),0.0)
+      bodyCords = new Matrix4(body.matrix);
+      body.render();
+      //console.log(body)
+    }
+    
+
+    
+    //head
+    let headSpace;
+    if (head.finished_making_objs) {
+      head.matrix = new Matrix4(bodyCords)
+      head.matrix.translate(0,+.4,0.0)
+      //head.matrix.translate(0,.2*Math.sin(g_seconds*3),0.0)
+      //head.matrix.rotate(-10*Math.sin(g_seconds*5),0,1,0);
+      head.matrix.rotate(10*Math.sin(g_seconds*4)-20,1,0,0);
+      headSpace = new Matrix4(head.matrix)
+      head.render();
+    }
+
+    //console.log(g_magenta_ang)
+
+    //legs
+    if (legLeft.finished_making_objs) {
+      legLeft.matrix = new Matrix4()
+      legLeft.matrix.setRotate(90,0,1,0)
+      legLeft.matrix.translate(0,-.5,-.06)
+      //legLeft.matrix.rotate(45*Math.sin(g_seconds*4),0,0,1);
+      legLeft.render();
+    }
+
+    if (legRight.finished_making_objs) {
+      legRight.matrix = new Matrix4()
+      legRight.matrix.setRotate(90,0,1,0)
+      legRight.matrix.translate(0,-.5,+.06)
+      //legRight.matrix.rotate(-45*Math.sin(g_seconds*4),0,0,1);
+      legRight.render();
+    }
+
+    //arms
+    if (armLeft.finished_making_objs) {
+      armLeft.matrix = new Matrix4(bodyCords)
+      armLeft.matrix.translate(0,+.31,+.15)
+      armLeft.matrix.rotate(25*Math.sin(g_seconds*4)-85,1,0,0);
+      armLeft.render();
+    }
+
+    if (armRight.finished_making_objs) {
+      armRight.matrix = new Matrix4(bodyCords)
+      armRight.matrix.translate(0,+.31,-.15)
+      armRight.matrix.rotate(-3*Math.sin(g_seconds*4),1,0,0);
+      armRight.render();
+    }
+
+    //tails
+    let tailspace;
+    if (tail1.finished_making_objs) {
+      tail1.matrix = new Matrix4(bodyCords)
+      tail1.matrix.translate(-.15 ,+.05,0)
+      tail1.matrix.rotate(-45*Math.sin(g_seconds*7),0,1,0);
+      tailspace = new Matrix4(tail1.matrix)
+      tail1.render();
+    }
+
+    if (tail2.finished_making_objs) {
+      tail2.matrix = new Matrix4(tailspace)
+      tail2.matrix.translate(-.2,0,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      tail2.matrix.rotate(-45*Math.sin(g_seconds*7),0,1,0);
+      tail2.render();
+    }
+
+    //hats
+    let hatSpace;
+    if (!(hat1 === null) && hat1.finished_making_objs ) {
+      hat1.matrix = new Matrix4(headSpace)
+      hat1.matrix.translate(0,+.44,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      hat1.matrix.rotate(g_yellow_ang,0,1,0);
+      hatSpace = new Matrix4(hat1.matrix)
+      hat1.render();
+    }
+
+    if (!(hat1 === null) && !(hat2 === null) && hat2.finished_making_objs ) {
+      hat2.matrix = new Matrix4(hatSpace)
+      hat2.matrix.translate(0,hat2_offset,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      hat2.matrix.rotate(g_magenta_ang,0,1,0);
+      
+      hat2.render();
+    }
+
+    //end waving animation ++++++++++++++++++++++++++++++++++++++++++++++ end waving animation ++++++++++++++++++++++++++
+  
+  }else{ //walking animation ++++++++++++++++++++++++++++++++++++++++++++++ walking animation ++++++++++++++++++++++++++
+    //test cube for obj loader
+    //var cube = new Custom("./Objs/cube.obj", "./Objs/cube.mtl")
+
+    //body
+    let bodyCords;
+    if (body.finished_making_objs) {
+      body.matrix.setTranslate(0,-.5,0.0)
+      body.matrix.rotate(90,0,1.0,0)
+      body.matrix.rotate(10*Math.sin(g_seconds*4),0,1,0);
+      body.matrix.translate(0,.02*Math.cos(g_seconds*8-.3),0.0)
+      bodyCords = new Matrix4(body.matrix);
+      body.render();
+      //console.log(body)
+    }
+    
+
+    
+    //head
+    let headSpace;
+    if (head.finished_making_objs) {
+      head.matrix = new Matrix4(bodyCords)
+      head.matrix.translate(0,+.4,0.0)
+      //head.matrix.translate(0,.2*Math.sin(g_seconds*3),0.0)
+      //head.matrix.rotate(-10*Math.sin(g_seconds*5),0,1,0);
+      head.matrix.rotate(-10*Math.sin(g_seconds*3),1,0,0);
+      headSpace = new Matrix4(head.matrix)
+      head.render();
+    }
+
+    //console.log(g_magenta_ang)
+
+    //legs
+    if (legLeft.finished_making_objs) {
+      legLeft.matrix = new Matrix4(bodyCords)
+      legLeft.matrix.translate(0,-.03,-.06)
+      legLeft.matrix.rotate(45*Math.sin(g_seconds*4),0,0,1);
+      legLeft.render();
+    }
+
+    if (legRight.finished_making_objs) {
+      legRight.matrix = new Matrix4(bodyCords)
+      legRight.matrix.translate(0,-.03,+.06)
+      legRight.matrix.rotate(-45*Math.sin(g_seconds*4),0,0,1);
+      legRight.render();
+    }
+
+    //arms
+    if (armLeft.finished_making_objs) {
+      armLeft.matrix = new Matrix4(bodyCords)
+      armLeft.matrix.translate(0,+.31,+.15)
+      armLeft.matrix.rotate(10*Math.sin(g_seconds*4),0,0,1);
+      armLeft.render();
+    }
+
+    if (armRight.finished_making_objs) {
+      armRight.matrix = new Matrix4(bodyCords)
+      armRight.matrix.translate(0,+.31,-.15)
+      armRight.matrix.rotate(-10*Math.sin(g_seconds*4),0,0,1);
+      armRight.render();
+    }
+
+    //tails
+    let tailspace;
+    if (tail1.finished_making_objs) {
+      tail1.matrix = new Matrix4(bodyCords)
+      tail1.matrix.translate(-.15 ,+.05,0)
+      tail1.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
+      tailspace = new Matrix4(tail1.matrix)
+      tail1.render();
+    }
+
+    if (tail2.finished_making_objs) {
+      tail2.matrix = new Matrix4(tailspace)
+      tail2.matrix.translate(-.2,0,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      tail2.matrix.rotate(-30*Math.sin(g_seconds*5),0,1,0);
+      tail2.render();
+    }
+
+    //hats
+    let hatSpace;
+    if (!(hat1 === null) && hat1.finished_making_objs ) {
+      hat1.matrix = new Matrix4(headSpace)
+      hat1.matrix.translate(0,+.44,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      hat1.matrix.rotate(g_yellow_ang,0,1,0);
+      hatSpace = new Matrix4(hat1.matrix)
+      hat1.render();
+    }
+
+    if (!(hat1 === null) && !(hat2 === null) && hat2.finished_making_objs ) {
+      hat2.matrix = new Matrix4(hatSpace)
+      hat2.matrix.translate(0,hat2_offset,0)
+      //tail2.matrix.rotate(45,0,1,0)
+      hat2.matrix.rotate(g_magenta_ang,0,1,0);
+      
+      hat2.render();
+    }
+    //end walking animation ++++++++++++++++++++++++++++++++++++++++++++++ end walking animation ++++++++++++++++++++++++++
   }
 
   
