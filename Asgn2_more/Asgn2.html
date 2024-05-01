@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>the blocky buds</title>
+  </head>
+
+  <body onload="main()">
+
+
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p id="fps">Temp</p>
+
+    <p></p>
+    Animation 
+    <input type="button" id="on" value="pause/resume"/>
+    
+    <p></p>
+    Animal select:
+    <select name="Animals" id="Animals">
+      <option value="Rac">Raccoon</option>
+      <option value="Gat">Gator</option>
+      <option value="owl">Owl</option>
+    </select>
+
+    First Hat Select:
+    <select name="hats" id="hat1">
+      <option value="">--Select First Hat--</option>
+      <option value="cap">Purple Cap</option>
+      <option value="sun">Sun Hat</option>
+      <option value="old">Fantasy</option>
+      <option value="top">Top Hat</option>
+      <option value="tea">Teapot</option>
+    </select>
+
+    Second Hat Select:
+    <select name="hats" id="hat2">
+      <option value="">--Select Second Hat--</option>
+      <option value="cap">Purple Cap</option>
+      <option value="sun">Sun Hat</option>
+      <option value="old">Fantasy</option>
+      <option value="top">Top Hat</option>
+      <option value="tea">Teapot</option>
+    </select>
+
+    <p></p>
+    Camera <input type="range" min="0" max="360" class="slider" value="0" id="camera_slide">
+    First Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="yellow_slide">
+    Second Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="magenta_slide">
+
+    <p></p>
+    Foilage Amount <input type="range" min="0" max="30" class="slider" value="0" id="foilage">
+    <input type="button" id="create" value="create"/>
+
+    <p></p>
+    Background color:   
+    
+    Red <input type="range" min="0" max="100" class="slider" value="0" id="redBackSlide">
+    Green <input type="range" min="0" max="100" class="slider" value="0" id="greenBackSlide">
+    Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueBackSlide">
+
+    <p></p>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Custom.js"></script>
+    <script src="floorObj.js"></script>
+    <script src="BlockyAnimal.js"></script>
+
+    <br>
+    created by Kiril Saltz
+    <br>
+    
+    School email: ksaltz@ucsc.edu
+    <br>
+    My Features:
+    <br>
+    Movement by clicking and dragging mouse
+    <br>
+    Change background color
+    <br>
+    obj loader (basic/must have specific export requirements)
+    <br>
+    HATS!!!! (first hat must be selected to see second hat)
+    <br>
+    second hat will be offset depending on first hat
+    <br>
+    select between 2 animals
+    <br>
+    shift+click to switch animations
+    <br>
+    grass generation
+    
+    
+  </body>
+</html>
