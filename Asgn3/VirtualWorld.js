@@ -1,20 +1,37 @@
-// ColoredPoint.js (c) 2012 matsuda
-//now modified by Kiril Saltz
+//by Kiril Saltz
+
 // Vertex shader program
 var VSHADER_SOURCE = 
   'attribute vec4 a_Position;\n' +
+  'attribute vec2 a_UV;\n' +
+  'varying vec2 v_UV;\n' +
   'uniform mat4 u_ModelMatrix;\n' +
   'uniform mat4 u_GlobalRotateMatrix;\n' +
   'void main() {\n' +
   '  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;\n' +
+  '  v_UV = a_UV;\n' +
   '}\n';
 
 // Fragment shader program
 var FSHADER_SOURCE =
   'precision mediump float;\n' +
+  'varying vec2 v_UV;\n' +
   'uniform vec4 u_FragColor;\n' + 
+  'uniform sampler2D u_Sampler0;\n' + 
+  'uniform sampler2D u_Sampler1;\n' + 
+  'uniform int u_whichTexture;\n' + 
   'void main() {\n' +
-  '  gl_FragColor = u_FragColor;\n' +
+  '  if(u_whichTexture == -2) {\n' +
+  '     gl_FragColor = u_FragColor;\n' +
+  '  } else if (u_whichTexture == -1) {\n' +
+  '     gl_FragColor = vec4(v_UV,1.0,1.0);\n' +
+  '  } else if (u_whichTexture == 0) {\n' +
+  '     gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
+  '  } else if (u_whichTexture == 1) {\n' +
+  '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
+  '  } else {\n' +
+  '     gl_FragColor = vec4(1,.2,.2,1);\n' +
+  '  }\n' +
   '}\n';
 
 
@@ -35,6 +52,11 @@ let a_Position;
 let u_FragColor;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
+
+let u_whichTexture;
+let u_Sampler0;
+let u_Sampler1;
+let a_UV;
 
 let global_angle_x = 0;
 let global_angle_y = 0;
@@ -80,10 +102,17 @@ function connectVariablesToGLSL(){
     return;
   }
 
-  // // Get the storage location of a_Position
-   a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+  // Get the storage location of a_Position
+  a_Position = gl.getAttribLocation(gl.program, 'a_Position');
   if (a_Position < 0) {
     console.log('Failed to get the storage location of a_Position');
+    return;
+  }
+
+  // Get the storage location of a_Position
+  a_UV = gl.getAttribLocation(gl.program, 'a_UV');
+  if (a_Position < 0) {
+    console.log('Failed to get the storage location of a_UV');
     return;
   }
 
@@ -93,6 +122,28 @@ function connectVariablesToGLSL(){
     console.log('Failed to get the storage location of u_FragColor');
     return;
   }
+
+  // Get the storage location of u_whichTexture
+  u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
+  if (!u_whichTexture) {
+    console.log('Failed to get the storage location of u_whichTexture');
+    return;
+  }
+  
+  // Get the storage location of u_Sampler0
+  u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+  if (!u_Sampler0) {
+    console.log('Failed to get the storage location of u_Sampler0');
+    return;
+  }
+
+  u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+  if (!u_Sampler1) {
+    console.log('Failed to get the storage location of u_Sampler1');
+    return;
+  }
+
+  
 
   //get the storage of the size
   u_Size = gl.getUniformLocation(gl.program, 'u_Size');
@@ -297,6 +348,98 @@ function changeBack(){
   //renderAllShapes();
 }
 
+function initTextures() {
+  
+
+  
+  var image = new Image();  // Create the image object
+  if (!image) {
+    console.log('Failed to create the image object');
+    return false;
+  }
+  // Register the event handler to be called on loading an image
+  image.onload = function(){ sendTextureToGLSL( image); };
+  // Tell the browser to load an image
+  image.src = './textures/Debug.png';
+
+  return true;
+}
+
+function sendTextureToGLSL(image) {
+
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE0);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 0 to the sampler
+  gl.uniform1i(u_Sampler0, 0);
+  
+  //gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+}
+
+
+
+//I swear i will fix this but im tired rn and cant be bothered
+function initTextures2() {
+  
+
+  
+  var image2 = new Image();  // Create the image object
+  if (!image2) {
+    console.log('Failed to create the image object');
+    return false;
+  }
+  // Register the event handler to be called on loading an image
+  image2.onload = function(){ sendTextureToGLSL2( image2); };
+  // Tell the browser to load an image
+  image2.src = './textures/fortnite_card_of_19_dolar.png';
+
+  return true;
+}
+
+function sendTextureToGLSL2(image2) {
+
+  var texture2 = gl.createTexture();   // Create a texture object
+  if (!texture2) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE1);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture2);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image2);
+  
+  // Set the texture unit 0 to the sampler
+  gl.uniform1i(u_Sampler1, 1);
+  
+  //gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+}
+
+
 function main() {
 
   
@@ -312,6 +455,10 @@ function main() {
   canvas.onclick = function(ev){ if (ev.shiftKey){g_walking = !g_walking} };
 
   canvas.onmousemove = function(ev){ if (ev.buttons == 1) { click(ev); }else{pre_mouse_pos = null} };
+
+  initTextures();
+
+  initTextures2();//im so sorry about this janky code
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -482,7 +629,7 @@ function renderAllShapes(){
   globalRotMax.rotate(global_angle_x, 0, 1, 0);
     
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMax.elements)
-
+  
   if (!g_walking) {//waving animation ++++++++++++++++++++++++++++++++++++++++++++++ waving animation ++++++++++++++++++++++++++
     //body
     let bodyCords;
@@ -685,7 +832,7 @@ function renderAllShapes(){
     }
     //end walking animation ++++++++++++++++++++++++++++++++++++++++++++++ end walking animation ++++++++++++++++++++++++++
   }
-
+ 
   
   //floor stuff
   for (let i = 0; i < foilage.length; i++) {
@@ -709,6 +856,14 @@ function renderAllShapes(){
   grass.matrix.translate(0,-.8, 0.0)
   grass.matrix.scale(1,.1, 1)
   grass.render();
+
+
+  var card = new Cube();
+  card.color = [0.1,0.6,0.1,1.0]
+  card.matrix.translate(.4,-.6, -0.4)
+  card.matrix.scale(.3,.3, .3)
+  card.textureNum = 1;
+  card.render();
 
 
   /*

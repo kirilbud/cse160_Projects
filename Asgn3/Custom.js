@@ -14,6 +14,12 @@ class Mesh{
   render(){
     //how was the fall??????
     var rgba = this.color;
+    //console.log(this.verts)
+
+    //make this just a base material for now
+    gl.uniform1i(u_whichTexture, -2)
+
+    gl.disableVertexAttribArray(a_UV);
 
     gl.uniform4f(u_FragColor, rgba[0]*4, rgba[1]*4, rgba[2]*4, rgba[3]);
 
@@ -38,8 +44,11 @@ class Mesh{
 
     gl.enableVertexAttribArray(a_Position);
 
-    gl.drawArrays(gl.TRIANGLES, 0, vert_to_buffer.length/3);
 
+
+    gl.drawArrays(gl.TRIANGLES, 0, vert_to_buffer.length/3);
+    //gl.drawArrays(gl.TRIANGLES, 0, 6);
+    //console.log(vert_to_buffer.length/3)
 
   }
 
