@@ -8,67 +8,30 @@
   <body onload="main()">
 
 
-    <canvas id="webgl" width="400" height="400">
+    <canvas id="webgl" width="889" height="500">
     Please use a browser that supports "canvas"
     </canvas>
     <p id="fps">Temp</p>
 
-    <p></p>
-    Animation 
-    <input type="button" id="on" value="pause/resume"/>
     
-    <p></p>
-    Animal select:
-    <select name="Animals" id="Animals">
-      <option value="Rac">Raccoon</option>
-      <option value="Gat">Gator</option>
-      <option value="owl">Owl</option>
-    </select>
 
-    First Hat Select:
-    <select name="hats" id="hat1">
-      <option value="">--Select First Hat--</option>
-      <option value="cap">Purple Cap</option>
-      <option value="sun">Sun Hat</option>
-      <option value="old">Fantasy</option>
-      <option value="top">Top Hat</option>
-      <option value="tea">Teapot</option>
-    </select>
-
-    Second Hat Select:
-    <select name="hats" id="hat2">
-      <option value="">--Select Second Hat--</option>
-      <option value="cap">Purple Cap</option>
-      <option value="sun">Sun Hat</option>
-      <option value="old">Fantasy</option>
-      <option value="top">Top Hat</option>
-      <option value="tea">Teapot</option>
-    </select>
-
-    <p></p>
-    Camera <input type="range" min="0" max="360" class="slider" value="0" id="camera_slide">
-    First Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="yellow_slide">
-    Second Hat rotation <input type="range" min="0" max="360" class="slider" value="0" id="magenta_slide">
-
-    <p></p>
-    Foilage Amount <input type="range" min="0" max="30" class="slider" value="0" id="foilage">
-    <input type="button" id="create" value="create"/>
-
-    <p></p>
-    Background color:   
     
-    Red <input type="range" min="0" max="100" class="slider" value="0" id="redBackSlide">
-    Green <input type="range" min="0" max="100" class="slider" value="0" id="greenBackSlide">
-    Blue <input type="range" min="0" max="100" class="slider" value="0" id="blueBackSlide">
+
+    
+
+    <p></p>
+    FOV <input type="range" min="20" max="120" class="slider" value="90" id="fov">
+
 
     <p></p>
 
     <script src="lib/webgl-utils.js"></script>
     <script src="lib/webgl-debug.js"></script>
     <script src="lib/cuon-utils.js"></script>
-    <script src="lib/cuon-matrix.js"></script>
-    <script src="Circle.js"></script>
-    <script src="Point.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="Camera.js"></script>
+    <script src="Map.js"></script>
+    <script src="NPC.js"></script>
     <script src="Triangle.js"></script>
     <script src="Cube.js"></script>
     <script src="Custom.js"></script>
@@ -80,24 +43,25 @@
     <br>
     School email: ksaltz@ucsc.edu
     <br>
-    My Features:
+    Controls:
     <br>
     Movement by clicking and dragging mouse
     <br>
-    shift+click to switch animations
+    move: W/A/S/D
     <br>
-    Change background color
+    up and down: space and V
     <br>
-    obj loader (basic/must have specific export requirements)
+    break and place blocks: Q and E
     <br>
-    HATS!!!! (first hat must be selected to see second hat)
+    My Features:
     <br>
-    second hat will be offset depending on first hat
+    reading from hightmap
     <br>
-    select between 3 animals
+    Obj loader
     <br>
-    grass generation
-    
+    fov slider
+    <br>
+    Raycasting for breaking and placing blocks
     
   </body>
 </html>
