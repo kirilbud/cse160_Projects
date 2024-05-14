@@ -611,7 +611,8 @@ function keydown(ev, down) { //gets the key down and if its up or not
 
 //for testing remove later
 let npc = new NPC();
-
+let g_skybox = new Cube();
+g_skybox.textureNum = 2;
 
 function renderAllShapes() {
 
@@ -656,6 +657,15 @@ function renderAllShapes() {
 
 
   g_map.render();
+
+  g_skybox.matrix.setTranslate(g_camera.eye.elements[0],g_camera.eye.elements[1],g_camera.eye.elements[2])
+  g_skybox.matrix.scale(100,100,100);
+  g_skybox.matrix.rotate(g_seconds, 0,1,0);
+  g_skybox.matrix.translate(-.5,-.5,-.5);
+  
+  
+  
+  g_skybox.render();
 
   g_camera.castRay();
 
