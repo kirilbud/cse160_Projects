@@ -22,6 +22,8 @@ var FSHADER_SOURCE =
   'uniform sampler2D u_Sampler0;\n' +
   'uniform sampler2D u_Sampler1;\n' +
   'uniform sampler2D u_Sampler2;\n' +
+  'uniform sampler2D u_Sampler3;\n' +
+  'uniform sampler2D u_Sampler4;\n' +
   'uniform int u_whichTexture;\n' +
   'void main() {\n' +
   '  if(u_whichTexture == -2) {\n' +
@@ -34,6 +36,10 @@ var FSHADER_SOURCE =
   '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
   '  } else if (u_whichTexture == 2) {\n' + //sky
   '     gl_FragColor = texture2D(u_Sampler2, v_UV);\n' +
+  '  } else if (u_whichTexture == 3) {\n' + //cobble
+  '     gl_FragColor = texture2D(u_Sampler3, v_UV);\n' +
+  '  } else if (u_whichTexture == 4) {\n' + //sand
+  '     gl_FragColor = texture2D(u_Sampler4, v_UV);\n' +
   '  } else {\n' +
   '     gl_FragColor = vec4(1,.2,.2,1);\n' +
   '  }\n' +
@@ -67,6 +73,8 @@ let u_whichTexture;
 let u_Sampler0;
 let u_Sampler1;
 let u_Sampler2;
+let u_Sampler3;
+let u_Sampler4;
 let a_UV;
 
 let global_angle_x = 0;
@@ -85,6 +93,8 @@ let g_animating = true;
 let g_walking = true;
 
 let g_map = new Map();
+
+let g_block = 0;
 
 
 
@@ -150,8 +160,20 @@ function connectVariablesToGLSL() {
   }
 
   u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
-  if (!u_Sampler1) {
+  if (!u_Sampler2) {
     console.log('Failed to get the storage location of u_Sampler2');
+    return;
+  }
+
+  u_Sampler3 = gl.getUniformLocation(gl.program, 'u_Sampler3');
+  if (!u_Sampler3) {
+    console.log('Failed to get the storage location of u_Sampler3');
+    return;
+  }
+
+  u_Sampler4 = gl.getUniformLocation(gl.program, 'u_Sampler4');
+  if (!u_Sampler4) {
+    console.log('Failed to get the storage location of u_Sampler4');
     return;
   }
 
@@ -201,135 +223,7 @@ function connectVariablesToGLSL() {
 
 }
 
-var hat1 = null;
-var hat2 = null;
 
-var hat2_offset = 0;
-
-function sethat1(val) {//selects hat one yes i know there is a better way but im lazy
-  switch (val) {
-    case "":
-      hat1 = null;
-      hat2_offset = 0;
-      break;
-    case "cap":
-      hat1 = new Custom("./Hats/cap.obj", "./Hats/cap.mtl");
-      hat2_offset = .10;
-      break;
-    case "sun":
-      hat1 = new Custom("./Hats/sun_hat.obj", "./Hats/sun_hat.mtl");
-      hat2_offset = .15;
-      break;
-    case "old":
-      hat1 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
-      hat2_offset = .15;
-      break;
-    case "top":
-      hat1 = new Custom("./Hats/top_hat.obj", "./Hats/top_hat.mtl");
-      hat2_offset = .38;
-      break;
-    case "tea":
-      hat1 = new Custom("./Hats/teapot.obj", "./Hats/teapot.mtl");
-      hat2_offset = .31;
-      break;
-    default:
-      hat1 = null;
-      hat2_offset = 0;
-      break;
-  }
-}
-
-function sethat2(val) {//is this basically the last function? yes, am I going to do something about it? no
-  switch (val) {
-    case "":
-      hat2 = null;
-      break;
-    case "cap":
-      hat2 = new Custom("./Hats/cap.obj", "./Hats/cap.mtl");
-      break;
-    case "sun":
-      hat2 = new Custom("./Hats/sun_hat.obj", "./Hats/sun_hat.mtl");
-      break;
-    case "old":
-      hat2 = new Custom("./Hats/old_hat.obj", "./Hats/old_hat.mtl");
-      break;
-    case "top":
-      hat2 = new Custom("./Hats/top_hat.obj", "./Hats/top_hat.mtl");
-      break;
-    case "tea":
-      hat2 = new Custom("./Hats/teapot.obj", "./Hats/teapot.mtl");
-      break;
-    default:
-      hat2 = null;
-      break;
-  }
-}
-
-function setAnimal(val) {//is this basically the last function? yes, am I going to do something about it? no
-  switch (val) {
-    case "Rac":// raccoon ====================================================================================
-      head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
-
-      body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
-
-
-      legLeft = new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
-      legRight = new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
-
-      armLeft = new Custom("./Objs/low_poly_raccoon_armLeft.obj", "./Objs/low_poly_raccoon_armLeft.mtl");
-      armRight = new Custom("./Objs/low_poly_raccoon_armRight.obj", "./Objs/low_poly_raccoon_armRight.mtl");
-
-      tail1 = new Custom("./Objs/low_poly_raccoon_tail_1.obj", "./Objs/low_poly_raccoon_tail_1.mtl");
-      tail2 = new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_raccoon_tail_2.mtl");
-      break;
-    case "Gat": //gator========================================================================================
-      head = new Custom("./Gator/gator_head.obj", "./Gator/gator_head.mtl");
-
-      body = new Custom("./Gator/gator_body.obj", "./Gator/gator_body.mtl");
-
-
-      legLeft = new Custom("./Gator/gator_left_leg.obj", "./Gator/gator_left_leg.mtl");
-      legRight = new Custom("./Gator/gator_right_leg.obj", "./Gator/gator_right_leg.mtl");
-
-      armLeft = new Custom("./Gator/gator_left_arm.obj", "./Gator/gator_left_arm.mtl");
-      armRight = new Custom("./Gator/gator_right_arm.obj", "./Gator/gator_right_arm.mtl");
-
-      tail1 = new Custom("./Gator/gator_tail1.obj", "./Gator/gator_tail1.mtl");
-      tail2 = new Custom("./Gator/gator_tail2.obj", "./Gator/gator_tail2.mtl");
-      break;
-    case "owl": //owl========================================================================================
-      head = new Custom("./owl/owl_head.obj", "./owl/owl_head.mtl");
-
-      body = new Custom("./owl/owl_body.obj", "./owl/owl_body.mtl");
-
-
-      legLeft = new Custom("./owl/owl_left_leg.obj", "./owl/owl_left_leg.mtl");
-      legRight = new Custom("./owl/owl_right_leg.obj", "./owl/owl_right_leg.mtl");
-
-      armLeft = new Custom("./owl/owl_left_arm.obj", "./owl/owl_left_arm.mtl");
-      armRight = new Custom("./owl/owl_right_arm.obj", "./owl/owl_right_arm.mtl");
-
-      tail1 = new Custom("./owl/owl_tail1.obj", "./owl/owl_tail1.mtl");
-      tail2 = new Custom("./owl/owl_tail2.obj", "./owl/owl_tail2.mtl");
-      break;
-    default://set defualt to raccoon===========================================================================
-      head = new Custom("./Objs/low_poly_raccoon.obj", "./Objs/low_poly_raccoon.mtl");
-
-      body = new Custom("./Objs/low_poly_raccoon_body.obj", "./Objs/low_poly_raccoon_body.mtl");
-
-
-      legLeft = new Custom("./Objs/low_poly_raccoon_legLeft.obj", "./Objs/low_poly_raccoon_legLeft.mtl");
-      legRight = new Custom("./Objs/low_poly_raccoon_legRight.obj", "./Objs/low_poly_raccoon_legRight.mtl");
-
-      armLeft = new Custom("./Objs/low_poly_raccoon_armLeft.obj", "./Objs/low_poly_raccoon_armLeft.mtl");
-      armRight = new Custom("./Objs/low_poly_raccoon_armRight.obj", "./Objs/low_poly_raccoon_armRight.mtl");
-
-      tail1 = new Custom("./Objs/low_poly_raccoon_tail_1.obj", "./Objs/low_poly_raccoon_tail_1.mtl");
-      tail2 = new Custom("./Objs/low_poly_raccoon_tail_2.obj", "./Objs/low_poly_raccoon_tail_2.mtl");
-
-      break;
-  }
-}
 
 
 function addActions() { // for connecting to html functions
@@ -405,6 +299,9 @@ function main() {
   initTextures2();//im so sorry about this janky code
 
   initTextures3();
+  initTextures4();
+
+  initTextures5();
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.3, 1.0, 1.0, 1.0);
@@ -576,6 +473,7 @@ function keydown(ev, down) { //gets the key down and if its up or not
       if (down && !g_e && g_camera.placeCube !== null) {//place cube... yeah
         g_map.cubes[g_camera.placeCube[0]][g_camera.placeCube[2]][g_camera.placeCube[1]] = new Cube();
         g_map.cubes[g_camera.placeCube[0]][g_camera.placeCube[2]][g_camera.placeCube[1]].matrix.translate(g_camera.placeCube[0], g_camera.placeCube[1], g_camera.placeCube[2]);
+        g_map.cubes[g_camera.placeCube[0]][g_camera.placeCube[2]][g_camera.placeCube[1]].textureNum = g_block;
       }
       g_e = down;
       break;
@@ -583,12 +481,27 @@ function keydown(ev, down) { //gets the key down and if its up or not
     case 81: //q key
       if (down && !g_q && g_camera.RemoveCube !== null) {//place cube... yeah
         g_map.cubes[g_camera.RemoveCube[0]][g_camera.RemoveCube[2]][g_camera.RemoveCube[1]] = null;
-        
+
       }
       g_q = down;
       break;
+    case 49: //1 key
+      g_block = 1;
+      TextToHTML("Dirt", "block");
+      break;
+    case 50: //2 key
+      g_block = 0;
+      TextToHTML("Wood", "block");
+      break;
 
-
+    case 51: //3 key
+      g_block = 3;
+      TextToHTML("Cobble", "block");
+      break;
+    case 52: //3 key
+      g_block = 4;
+      TextToHTML("Sand", "block");
+      break;
     case 32: //spacebar
       //console.log("spacebar =" + down)
       g_space = down;
@@ -658,13 +571,13 @@ function renderAllShapes() {
 
   g_map.render();
 
-  g_skybox.matrix.setTranslate(g_camera.eye.elements[0],g_camera.eye.elements[1],g_camera.eye.elements[2])
-  g_skybox.matrix.scale(100,100,100);
-  g_skybox.matrix.rotate(g_seconds, 0,1,0);
-  g_skybox.matrix.translate(-.5,-.5,-.5);
-  
-  
-  
+  g_skybox.matrix.setTranslate(g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2])
+  g_skybox.matrix.scale(100, 100, 100);
+  g_skybox.matrix.rotate(g_seconds, 0, 1, 0);
+  g_skybox.matrix.translate(-.5, -.5, -.5);
+
+
+
   g_skybox.render();
 
   g_camera.castRay();
@@ -673,11 +586,11 @@ function renderAllShapes() {
 
 
 
-  
+
 
 
   //floor stuff
-  
+
 
   //floorObs.render(delta_time);
 
