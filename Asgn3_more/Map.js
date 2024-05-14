@@ -35,7 +35,7 @@ class Map{
             [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4]//31
         ]
         this.cubes = [];
-        // I fucked up its x , z, y
+        // I messed up its x , z, y
         // im really sorry
         // i dont have time to fix this and its faster to deal with it as is
 

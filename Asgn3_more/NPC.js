@@ -9,7 +9,7 @@ class NPC {
         this.tail1;
         this.tail2;
         this.npcMatrix = new Matrix4();
-        this.position = new Vector3([16, 2, 16]);//this is the correct space but will need to fix when adding collisions
+        this.position = new Vector3([16.5, 2, 16.5]);//this is the correct space but will need to fix when adding collisions
         this.animation = 0;
         this.rotation = 0;
         this.changeCharacter("Rac");
@@ -185,7 +185,7 @@ class NPC {
             //head.matrix.translate(0,.2*Math.sin(g_seconds*3),0.0)
             //head.matrix.rotate(-10*Math.sin(g_seconds*5),0,1,0);
             this.head.matrix.rotate(-10 * Math.sin(g_seconds * 3), 1, 0, 0);
-            headSpace = new Matrix4(head.matrix)
+            headSpace = new Matrix4(this.head.matrix)
             //head.render();
         }
 
@@ -267,17 +267,19 @@ class NPC {
         switch (this.animation) { //apply correct animation for current state
             //todo add more animations
             case 0:
+                this.walk();
+                break;
+            case 1:
                 this.wave();
                 break;
-
             default:
-                this.walk();
+                this.wave();
                 break;
         }
         this.npcMatrix.setIdentity();
 
         //global transform
-        this.npcMatrix.translate(this.position.elements[0], this.position.elements[1]+1.5, this.position.elements[2]);
+        this.npcMatrix.translate(this.position.elements[0], this.position.elements[1] + 1.5, this.position.elements[2]);
         this.npcMatrix.rotate(this.rotation, 0, 1, 0);
         this.npcMatrix.scale(2, 2, 2);
 
