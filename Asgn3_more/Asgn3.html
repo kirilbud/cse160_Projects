@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>the blocky buds</title>
+  </head>
+
+  <body onload="main()">
+
+
+    <canvas id="webgl" width="889" height="500">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p id="fps">Temp</p>
+
+    
+
+    
+
+    
+
+    <p></p>
+    FOV <input type="range" min="20" max="120" class="slider" value="90" id="fov">
+
+
+    <p></p>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="Camera.js"></script>
+    <script src="Map.js"></script>
+    <script src="NPC.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Custom.js"></script>
+    <script src="floorObj.js"></script>
+    <script src="textures.js"></script>
+    <script src="VirtualWorld.js"></script>
+
+    <br>
+    created by Kiril Saltz
+    <br>
+    School email: ksaltz@ucsc.edu
+    <br>
+    Controls:
+    <br>
+    Movement by clicking and dragging mouse
+    <br>
+    move: W/A/S/D
+    <br>
+    up and down: space and V
+    <br>
+    break and place blocks: Q and E
+    <br>
+    My Features:
+    <br>
+    reading from hightmap
+    <br>
+    Obj loader
+    <br>
+    fov slider
+    <br>
+    Raycasting for breaking and placing blocks
+    
+  </body>
+</html>
