@@ -12,10 +12,13 @@ class NPC {
         this.position = new Vector3([16.5, 2, 16.5]);//this is the correct space but will need to fix when adding collisions
         this.forwardVect = new Vector3([0, 0, -1]);
         this.animation = 2;
-        this.rotation = 0;
+        this.rotation = Math.random() * 359;
         this.delta_rotation = (Math.random() * 30) - 15;
 
-        this.changeCharacter("Rac");
+        let animal = ["Rac", "Gat", "owl"];
+        animal = animal[Math.floor(Math.random() * animal.length )]
+
+        this.changeCharacter(animal);
         this.timer = g_startTime + (Math.random() * 15) + 3;//time till switching states
 
         this.lookingAtNpc = false;

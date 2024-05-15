@@ -131,9 +131,9 @@ class Camera {
 
         //TODO check collision
         if ( // check if within the map to start for collision checks
-            !(this.eye.elements[0] < 1 || this.eye.elements[0] > 31 ||
-            this.eye.elements[1] < 1 || this.eye.elements[1] > 31 ||
-            this.eye.elements[2] < 1 || this.eye.elements[2] > 31)
+            !(this.eye.elements[0] < 0 || this.eye.elements[0] > 32 ||
+            this.eye.elements[1] < 0 || this.eye.elements[1] > 32 ||
+            this.eye.elements[2] < 0 || this.eye.elements[2] > 32)
         ) {
             //get map location
             let mapX = Math.floor(this.eye.elements[0]);
@@ -146,36 +146,36 @@ class Camera {
             let subZ = this.eye.elements[2] % 1;
 
             //check if within .2 of possible block
-            if (subX < .2) {
+            if (mapX > 0 && subX < .2) {
                 if (g_map.cubes[mapX-1][mapZ][mapY] !== null) {
                     this.eye.elements[0] = this.eye.elements[0] + (.2 - subX);
                     this.at.elements[0] = this.at.elements[0] + (.2 - subX);
                 }
-            }else if (subX > .8) {
+            }else if (mapX < 31 && subX > .8) {
                 if (g_map.cubes[mapX+1][mapZ][mapY] !== null) {
                     this.eye.elements[0] = this.eye.elements[0] + (.8 - subX);
                     this.at.elements[0] = this.at.elements[0] + (.8 - subX);
                 }
             }
 
-            if (subY < .2) {
+            if (mapY > 0 && subY < .2) {
                 if (g_map.cubes[mapX][mapZ][mapY-1] !== null) {
                     this.eye.elements[1] = this.eye.elements[1] + (.2 - subY);
                     this.at.elements[1] = this.at.elements[1] + (.2 - subY);
                 }
-            }else if (subY > .8) {
+            }else if (mapY < 31 && subY > .8) {
                 if (g_map.cubes[mapX][mapZ][mapY+1] !== null) {
                     this.eye.elements[1] = this.eye.elements[1] + (.8 - subY);
                     this.at.elements[1] = this.at.elements[1] + (.8 - subY);
                 }
             }
 
-            if (subZ < .2) {
+            if (mapZ > 0 && subZ < .2) {
                 if (g_map.cubes[mapX][mapZ-1][mapY] !== null) {
                     this.eye.elements[2] = this.eye.elements[2] + (.2 - subZ);
                     this.at.elements[2] = this.at.elements[2] + (.2 - subZ);
                 }
-            }else if (subZ > .8) {
+            }else if (mapZ < 31 && subZ > .8) {
                 if (g_map.cubes[mapX][mapZ+1][mapY] !== null) {
                     this.eye.elements[2] = this.eye.elements[2] + (.8 - subZ);
                     this.at.elements[2] = this.at.elements[2] + (.8 - subZ);

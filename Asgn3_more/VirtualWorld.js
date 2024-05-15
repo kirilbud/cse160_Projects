@@ -487,7 +487,7 @@ function keydown(ev, down) { //gets the key down and if its up or not
       break;
     case 49: //1 key
       g_block = 1;
-      TextToHTML("Dirt", "block");
+      TextToHTML("Grass", "block");
       break;
     case 50: //2 key
       g_block = 0;
@@ -496,7 +496,7 @@ function keydown(ev, down) { //gets the key down and if its up or not
 
     case 51: //3 key
       g_block = 3;
-      TextToHTML("Cobble", "block");
+      TextToHTML("Cobblestone", "block");
       break;
     case 52: //3 key
       g_block = 4;
