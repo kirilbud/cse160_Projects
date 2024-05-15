@@ -11,7 +11,7 @@ class NPC {
         this.npcMatrix = new Matrix4();
         this.position = new Vector3([16.5, 2, 16.5]);//this is the correct space but will need to fix when adding collisions
         this.forwardVect = new Vector3([0, 0, -1]);
-        this.animation = 0;
+        this.animation = 2;
         this.rotation = 0;
         this.delta_rotation = (Math.random() * 30) - 15;
 
