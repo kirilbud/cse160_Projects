@@ -415,7 +415,7 @@ function tick() {
   }
 
   if (!g_walking || !g_animating) {
-    delta_time = 0;//specific for grass
+    //delta_time = 0;//specific for grass
   }
 
   //console.log(delta_time);

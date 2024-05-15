@@ -338,10 +338,13 @@ class Camera {
             ) {
                 looking_at_npc = true;
             }
+            //let npc_current_ani = npc.animation;
             if (looking_at_npc) {
-                npc.animation = 1;
+                npc.lookingAtNpc = true;
+                //console.log("looking at npc")
             }else{
-                npc.animation = 0;
+                npc.lookingAtNpc = false;
+                //console.log("Not looking at npc")
             }
 
         }
