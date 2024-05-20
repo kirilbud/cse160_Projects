@@ -113,12 +113,12 @@ function main(){
     {
         const loader = new THREE.CubeTextureLoader();
         const texture = loader.load([
-            "./Textures/Sky/divine_ft.jpg",
-            "./Textures/Sky/divine_bk.jpg",
-            "./Textures/Sky/divine_up.jpg",
-            "./Textures/Sky/divine_dn.jpg",
-            "./Textures/Sky/divine_rt.jpg",
-            "./Textures/Sky/divine_lf.jpg",
+            "./Textures/sky/divine_ft.jpg",
+            "./Textures/sky/divine_bk.jpg",
+            "./Textures/sky/divine_up.jpg",
+            "./Textures/sky/divine_dn.jpg",
+            "./Textures/sky/divine_rt.jpg",
+            "./Textures/sky/divine_lf.jpg",
         ]);
         scene.background = texture;
     }
