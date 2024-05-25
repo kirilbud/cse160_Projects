@@ -16,7 +16,7 @@ class NPC {
         this.delta_rotation = (Math.random() * 30) - 15;
 
         let animal = ["Rac", "Gat", "owl"];
-        animal = animal[Math.floor(Math.random() * animal.length )]
+        animal = animal["Rac"]
 
         this.changeCharacter(animal);
         this.timer = g_startTime + (Math.random() * 15) + 3;//time till switching states

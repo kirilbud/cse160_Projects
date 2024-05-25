@@ -104,6 +104,8 @@ let g_map = new Map();
 
 let g_block = 0;
 
+let g_norms = false;
+
 
 
 function setupWebGL() {
@@ -263,7 +265,7 @@ function addActions() { // for connecting to html functions
 
   //foilage generation
   //document.getElementById("foilage").addEventListener('mousemove', function () { foilage_amount = this.valueAsNumber; })
-  //document.getElementById("create").onclick = function () { gen_foil() }
+  document.getElementById("norms").onclick = function () { g_norms = !g_norms }
 
 
   //background color sliders
@@ -588,6 +590,8 @@ function renderAllShapes() {
 
   g_skybox.render();
 
+
+  g_sphere.matrix.setTranslate(14, 3, 14)
   g_sphere.render();
 
 

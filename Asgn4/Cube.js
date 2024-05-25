@@ -99,14 +99,14 @@ class Cube{
         0,0,1,   0,0,1,  0,0,1, //back
         0,0,1,   0,0,1,  0,0,1,
 
-        -1,0,0,   -1,0,0,  -1,0,0, //right
-        -1,0,0,   -1,0,0,  -1,0,0,
+        1,0,0,   1,0,0,  1,0,0, //right
+        1,0,0,   1,0,0,  1,0,0,
 
         0,0,-1,   0,0,-1,  0,0,-1, //front
         0,0,-1,   0,0,-1,  0,0,-1,
 
-        1,0,0,   1,0,0,  1,0,0, //left
-        1,0,0,   1,0,0,  1,0,0,
+        -1,0,0,   -1,0,0,  -1,0,0, //left
+        -1,0,0,   -1,0,0,  -1,0,0,
 
         0,1,0,   0,1,0,  0,1,0, //top
         0,1,0,   0,1,0,  0,1,0,
@@ -119,6 +119,8 @@ class Cube{
       this.vertBuffer = null;
       this.uvBuffer = null;
 
+      this.normBuffer = null;
+
     }
   
     render(){
@@ -128,7 +130,14 @@ class Cube{
       //var size = this.size
 
       //pass texture number
-      gl.uniform1i(u_whichTexture, this.textureNum)
+
+      if (g_norms) {
+        gl.uniform1i(u_whichTexture, -3)
+      }else{
+        gl.uniform1i(u_whichTexture, this.textureNum)
+      }
+      
+      
 
       gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 
@@ -148,6 +157,14 @@ class Cube{
       if (this.uvBuffer === null) {
         this.uvBuffer = gl.createBuffer();
         if (!this.uvBuffer) {
+          console.log("Failed to create the buffer object");
+          return -1;
+        }
+      }
+
+      if (this.normBuffer === null) {
+        this.normBuffer = gl.createBuffer();
+        if (!this.normBuffer) {
           console.log("Failed to create the buffer object");
           return -1;
         }
@@ -173,6 +190,15 @@ class Cube{
 
       gl.enableVertexAttribArray(a_UV);
 
+      //norm data
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.normBuffer);
+
+      gl.bufferData(gl.ARRAY_BUFFER, this.Normals, gl.DYNAMIC_DRAW);
+
+      gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, 0, 0);
+
+      gl.enableVertexAttribArray(a_Normal);
+
 
 
       //draw triangles
@@ -180,58 +206,6 @@ class Cube{
       gl.drawArrays(gl.TRIANGLES, 0, this.verts.length/3);
 
             
-        // front of cube
-        //drawTriangle3D([0.0,0.0,0.0,   1.0,1.0,0.0, 1.0,0.0,0.0]);
-        //drawTriangle3D([0.0,0.0,0.0,   0.0,1.0,0.0, 1.0,1.0,0.0]);
-
-
-        //back of cube
-        //drawTriangle3D([0.0,0.0,1.0,   1.0,1.0,1.0, 1.0,0.0,1.0]);
-        //drawTriangle3D([0.0,0.0,1.0,   0.0,1.0,1.0, 1.0,1.0,1.0]);
-
-
-
-        //bottom of cube
-        //drawTriangle3D([0.0,0.0,0.0,   0.0,0.0,1.0, 1.0,0.0,1.0]);
-        //drawTriangle3D([0.0,0.0,0.0,   1.0,0.0,0.0, 1.0,0.0,1.0]);
-
-        //drawTriangle3D([0.0,0.0,0.0,   0.0,1.0,0.0, 0.0,1.0,1.0]);
-
-        //1x1 cube with origin in center using draw tri
-
-        /*
-
-        //back
-        //gl.uniform4f(u_FragColor, rgba[0]*.5, rgba[1]*.5, rgba[2]*.5, rgba[3])
-        drawTriangle3DUV([-0.5,-0.5,0.5,   0.5,-0.5,0.5,  0.5,0.5,0.5,], [1,0, 0,0, 0,1] );
-        drawTriangle3DUV([-0.5,-0.5,0.5,   0.5,0.5,0.5,  -0.5,0.5,0.5,], [1,0, 0,1, 1,1]);
-
-        //right
-        //gl.uniform4f(u_FragColor, rgba[0]*.7, rgba[1]*.7, rgba[2]*.7, rgba[3])
-        drawTriangle3DUV([0.5,-0.5,0.5,   0.5,-0.5,-0.5,  0.5,0.5,-0.5,], [1,0, 0,0, 0,1]);
-        drawTriangle3DUV([0.5,-0.5,0.5,   0.5,0.5,-0.5,  0.5,0.5,0.5,], [1,0, 0,1, 1,1]);
-
-        //front
-        //gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3])
-        drawTriangle3DUV([0.5,-0.5,-0.5,   -0.5,-0.5,-0.5,  -0.5,0.5,-0.5,], [1,0, 0,0, 0,1]);
-        drawTriangle3DUV([0.5,-0.5,-0.5,   -0.5,0.5,-0.5,  0.5,0.5,-0.5,], [1,0, 0,1, 1,1] );
-
-        //left 
-        //gl.uniform1i(u_whichTexture, -1)
-        //gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3])
-        drawTriangle3DUV([-0.5,-0.5,-0.5,   -0.5,-0.5,0.5,  -0.5,0.5,0.5,], [1,0, 0,0, 0,1]);
-        drawTriangle3DUV([-0.5,-0.5,-0.5,   -0.5,0.5,0.5,  -0.5,0.5,-0.5,], [1,0, 0,1, 1,1]);
-
-        //top
-        //gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3])
-        drawTriangle3DUV([-0.5,0.5,0.5,   0.5,0.5,0.5,  0.5,0.5,-0.5], [1,0, 0,0, 0,1]);
-        drawTriangle3DUV([-0.5,0.5,0.5,   0.5,0.5,-0.5,  -0.5,0.5,-0.5], [1,0, 0,1, 1,1]);
-
-        //bottom
-        //gl.uniform4f(u_FragColor, rgba[0]*.3, rgba[1]*.3, rgba[2]*.3, rgba[3])
-        drawTriangle3DUV([0.5,-0.5,0.5,   -0.5,-0.5,0.5,  -0.5,-0.5,-0.5], [1,0, 0,0, 0,1]);
-        drawTriangle3DUV([0.5,-0.5,0.5,   -0.5,-0.5,-0.5,  0.5,-0.5,-0.5], [1,0, 0,1, 1,1]);
-        */
         
         
         

@@ -3,7 +3,7 @@ class Sphere{
       //console.log("gamer")
       this.type = "cube";
       //this.position = [0.0,0.0,0.0];
-      this.color = [1.0,0.0,0.0,1.0];
+      this.color = [0.7,0.1,0.7,1.0];
       //this.size = 5.0;
       //this.segments = 10;
       this.matrix = new Matrix4();
@@ -22,7 +22,7 @@ class Sphere{
 
       this.genArrays();
 
-      print()
+      //print()
 
     }
 
@@ -68,7 +68,12 @@ class Sphere{
       //var size = this.size
 
       //pass texture number
-      gl.uniform1i(u_whichTexture, -3)
+      if (g_norms) {
+        gl.uniform1i(u_whichTexture, -3)
+      }else{
+        gl.uniform1i(u_whichTexture, -2)
+      }
+      
 
       gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 

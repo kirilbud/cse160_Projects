@@ -7,17 +7,60 @@ class Mesh{
 
 
     this.verts = [];
+    this.norms = null;
     this.buffer = null;
+    this.normBuffer = null;
+  }
+
+  generateNorms(){
+    this.norms = [];
+
+    for (let i = 0; i < this.verts.length; i = i + 9) {
+      let vec1 = new Vector3([
+        this.verts[i+3] - this.verts[i],
+        this.verts[i+4] - this.verts[i+1],
+        this.verts[i+5] - this.verts[i+2],
+      ]);
+      let vec2 = new Vector3([
+        this.verts[i+6] - this.verts[i],
+        this.verts[i+7] - this.verts[i+1],
+        this.verts[i+8] - this.verts[i+2],
+      ]);  
+      
+      let cross = Vector3.cross(vec1, vec2);
+      cross.normalize();
+      this.norms.push(cross.elements[0]);
+      this.norms.push(cross.elements[1]);
+      this.norms.push(cross.elements[2]);
+
+      this.norms.push(cross.elements[0]);
+      this.norms.push(cross.elements[1]);
+      this.norms.push(cross.elements[2]);
+
+      this.norms.push(cross.elements[0]);
+      this.norms.push(cross.elements[1]);
+      this.norms.push(cross.elements[2]);
+    }
 
   }
 
   render(){
     //how was the fall??????
+
+    //console.log("Norms ="+this.norms.length +"verts ="+this.verts.length);
+    
+
     var rgba = this.color;
     //console.log(this.verts)
 
     //make this just a base material for now
-    gl.uniform1i(u_whichTexture, -2)
+    if (g_norms) {
+      gl.uniform1i(u_whichTexture, -3)
+    }else{
+      gl.uniform1i(u_whichTexture, -2)
+    }
+
+    
 
     gl.disableVertexAttribArray(a_UV);
 
@@ -27,6 +70,14 @@ class Mesh{
       this.buffer = gl.createBuffer();
       if (!this.buffer) {
         console.log("Failed to create the buffer object");
+        return -1;
+      }
+    }
+
+    if (this.normBuffer === null) {
+      this.normBuffer = gl.createBuffer();
+      if (!this.normBuffer) {
+        console.log("Failed to create the normBuffer object");
         return -1;
       }
     }
@@ -43,6 +94,22 @@ class Mesh{
     gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
 
     gl.enableVertexAttribArray(a_Position);
+
+    
+
+
+
+    //gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.normBuffer);
+
+    let norm_to_buffer = new Float32Array(this.norms)
+
+    gl.bufferData(gl.ARRAY_BUFFER, norm_to_buffer, gl.DYNAMIC_DRAW);
+
+    gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, 0, 0);
+
+    gl.enableVertexAttribArray(a_Normal);
 
 
 
@@ -190,6 +257,7 @@ class Custom{
           mesh.verts.push(this.verts[element*3+1])
           mesh.verts.push(this.verts[element*3+2])
         }
+        mesh.generateNorms();
 
         this.meshs.push(mesh)
 
