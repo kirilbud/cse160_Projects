@@ -1,55 +1,58 @@
 //by Kiril Saltz
 
 // Vertex shader program
-var VSHADER_SOURCE =
-  'attribute vec4 a_Position;\n' +
-  'attribute vec2 a_UV;\n' +
-  'attribute vec3 a_Normal;\n' +
-  'varying vec2 v_UV;\n' +
-  'varying vec3 v_Normal;\n' +
-  'uniform mat4 u_ModelMatrix;\n' +
-  'uniform mat4 u_GlobalRotateMatrix;\n' +
-  'uniform mat4 u_ViewMatrix;\n' +
-  'uniform mat4 u_ProjectionMatrix;\n' +
-  'void main() {\n' +
-  '  gl_Position =  u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;\n' +
-  '  v_UV = a_UV;\n' +
-  '  v_Normal = a_Normal;\n' +
-  '}\n';
+var VSHADER_SOURCE = `
+attribute vec4 a_Position;
+attribute vec2 a_UV;
+attribute vec3 a_Normal;
+varying vec2 v_UV;
+varying vec3 v_Normal;
+uniform mat4 u_ModelMatrix;
+uniform mat4 u_GlobalRotateMatrix;
+uniform mat4 u_ViewMatrix;
+uniform mat4 u_ProjectionMatrix;
+void main() {
+  gl_Position =  u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+  v_UV = a_UV;
+  v_Normal = a_Normal;
+}
+`;
 
 // Fragment shader program
-var FSHADER_SOURCE =
-  'precision mediump float;\n' +
-  'varying vec2 v_UV;\n' +
-  'varying vec3 v_Normal;\n' +
-  'uniform vec4 u_FragColor;\n' +
-  'uniform sampler2D u_Sampler0;\n' +
-  'uniform sampler2D u_Sampler1;\n' +
-  'uniform sampler2D u_Sampler2;\n' +
-  'uniform sampler2D u_Sampler3;\n' +
-  'uniform sampler2D u_Sampler4;\n' +
-  'uniform int u_whichTexture;\n' +
-  'void main() {\n' +
-  '  if(u_whichTexture == -2) {\n' +
-  '     gl_FragColor = u_FragColor;\n' +
-  '  } else if (u_whichTexture == -1) {\n' +
-  '     gl_FragColor = vec4(v_UV,1.0,1.0);\n' + //debug UV
-  '  } else if (u_whichTexture == -3) {\n' +
-  '     gl_FragColor = vec4((v_Normal + 1.0) / 2.0 , 1.0);\n' + //debug Normal
-  '  } else if (u_whichTexture == 0) {\n' + //wood
-  '     gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
-  '  } else if (u_whichTexture == 1) {\n' + //grass
-  '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
-  '  } else if (u_whichTexture == 2) {\n' + //sky
-  '     gl_FragColor = texture2D(u_Sampler2, v_UV);\n' +
-  '  } else if (u_whichTexture == 3) {\n' + //cobble
-  '     gl_FragColor = texture2D(u_Sampler3, v_UV);\n' +
-  '  } else if (u_whichTexture == 4) {\n' + //sand
-  '     gl_FragColor = texture2D(u_Sampler4, v_UV);\n' +
-  '  } else {\n' +
-  '     gl_FragColor = vec4(1,.2,.2,1);\n' +
-  '  }\n' +
-  '}\n';
+var FSHADER_SOURCE =`
+precision mediump float;
+varying vec2 v_UV;
+varying vec3 v_Normal;
+uniform vec4 u_FragColor;
+uniform sampler2D u_Sampler0;
+uniform sampler2D u_Sampler1;
+uniform sampler2D u_Sampler2;
+uniform sampler2D u_Sampler3;
+uniform sampler2D u_Sampler4;
+uniform int u_whichTexture;
+void main() {
+  if(u_whichTexture == -2) {
+     gl_FragColor = u_FragColor;
+  } else if (u_whichTexture == -1) {
+     gl_FragColor = vec4(v_UV,1.0,1.0); //debug UV
+  } else if (u_whichTexture == -3) {
+     gl_FragColor = vec4((v_Normal + 1.0) / 2.0 , 1.0); //debug Normal
+  } else if (u_whichTexture == 0) { //wood
+     gl_FragColor = texture2D(u_Sampler0, v_UV);
+  } else if (u_whichTexture == 1) { //grass
+     gl_FragColor = texture2D(u_Sampler1, v_UV);
+  } else if (u_whichTexture == 2) { //sky
+     gl_FragColor = texture2D(u_Sampler2, v_UV);
+  } else if (u_whichTexture == 3) { //cobble
+     gl_FragColor = texture2D(u_Sampler3, v_UV);
+  } else if (u_whichTexture == 4) { //sand
+     gl_FragColor = texture2D(u_Sampler4, v_UV);
+  } else {
+     gl_FragColor = vec4(1,.2,.2,1);
+  }
+}
+`;
+
 
 
 //GLOBAL VARIALBLES -----------------------
