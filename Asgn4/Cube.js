@@ -7,6 +7,7 @@ class Cube{
       //this.size = 5.0;
       //this.segments = 10;
       this.matrix = new Matrix4();
+      this.normalMatrix = new Matrix4();
       this.textureNum = 0;
 
       //all in one buffer of verts for 1x1 cube with origin at center
@@ -143,6 +144,9 @@ class Cube{
 
       // pass the model matrix
       gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements)
+
+      this.normalMatrix.setInverseOf(this.matrix).transpose();
+      gl.uniformMatrix4fv(u_NormalMatrix, false, this.normalMatrix.elements)
 
       //new render code
 

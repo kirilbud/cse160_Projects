@@ -4,6 +4,7 @@ class Mesh{
     this.matName = ""
     this.color = [1.0,0.0,0.0,1.0];
     this.matrix = new Matrix4();
+    this.normalMatrix = new Matrix4();
 
 
     this.verts = [];
@@ -85,6 +86,9 @@ class Mesh{
     //the following method is from lab2 but to work with the full mesh
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements)
 
+    this.normalMatrix.setInverseOf(this.matrix).transpose();
+    gl.uniformMatrix4fv(u_NormalMatrix, false, this.normalMatrix.elements)
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
     let vert_to_buffer = new Float32Array(this.verts)
@@ -128,6 +132,7 @@ class Custom{
       this.type = "Custom";
       //this.color = [1.0,0.0,0.0,1.0];
       this.matrix = new Matrix4();
+      
 
       this.finished_parsing_obj = false;
       this.finished_parsing_mtl = false;

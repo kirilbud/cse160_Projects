@@ -7,14 +7,17 @@ attribute vec2 a_UV;
 attribute vec3 a_Normal;
 varying vec2 v_UV;
 varying vec3 v_Normal;
+varying vec4 v_VertPos;
 uniform mat4 u_ModelMatrix;
 uniform mat4 u_GlobalRotateMatrix;
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_ProjectionMatrix;
+uniform mat4 u_NormalMatrix;
 void main() {
   gl_Position =  u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
   v_UV = a_UV;
-  v_Normal = a_Normal;
+  v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1)));
+  v_VertPos = u_ModelMatrix * a_Position;
 }
 `;
 
@@ -23,12 +26,16 @@ var FSHADER_SOURCE =`
 precision mediump float;
 varying vec2 v_UV;
 varying vec3 v_Normal;
+varying vec4 v_VertPos;
 uniform vec4 u_FragColor;
 uniform sampler2D u_Sampler0;
 uniform sampler2D u_Sampler1;
 uniform sampler2D u_Sampler2;
 uniform sampler2D u_Sampler3;
 uniform sampler2D u_Sampler4;
+uniform vec3 u_lightPos;
+uniform vec3 u_cameraPos;
+uniform bool u_lightOn;
 uniform int u_whichTexture;
 void main() {
   if(u_whichTexture == -2) {
@@ -50,6 +57,43 @@ void main() {
   } else {
      gl_FragColor = vec4(1,.2,.2,1);
   }
+  //u_lightPos = vect3(1,1,1);
+
+  vec3 lightVect = u_lightPos - vec3(v_VertPos);
+  float r = length(lightVect);
+
+  //if(r < 1.0){
+  //  gl_FragColor = vec4(1,0,0,1);
+  //}else if (r < 2.0){
+  //  gl_FragColor = vec4(0,1,0,1);
+  //}
+
+  //light fall off model
+  //gl_FragColor = vec4(vec3(gl_FragColor)/(r*r),1);
+
+  vec3 L = normalize(lightVect);
+  vec3 N = normalize(v_Normal);
+  float nDotL = max(dot(N,L),0.0);
+
+  //reflection
+  vec3 R = reflect(-L,N);
+
+  //eye
+  vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
+
+  //specular
+  float specular = pow(max(dot(E,R),0.0),32.0); 
+
+
+
+  vec3 diffuse = vec3(gl_FragColor) * nDotL;
+  vec3 ambient = vec3(gl_FragColor) * 0.3;
+
+  if(u_lightOn){
+    gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
+  }
+  
+
 }
 `;
 
@@ -77,6 +121,7 @@ let u_GlobalRotateMatrix;
 
 let u_ViewMatrix;
 let u_ProjectionMatrix;
+let u_NormalMatrix;
 
 let u_whichTexture;
 let u_Sampler0;
@@ -86,6 +131,10 @@ let u_Sampler3;
 let u_Sampler4;
 let a_UV;
 let a_Normal;
+
+let u_lightPos;
+let u_cameraPos;
+let u_lightOn;
 
 
 let global_angle_x = 0;
@@ -108,6 +157,9 @@ let g_map = new Map();
 let g_block = 0;
 
 let g_norms = false;
+let g_lightBool = true;
+
+let g_lightpos = [13,5,13]
 
 
 
@@ -196,6 +248,23 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_lightPos = gl.getUniformLocation(gl.program, 'u_lightPos');
+  if (!u_lightPos) {
+    console.log('Failed to get the storage location of u_lightPos');
+    return;
+  }
+
+  u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
+  if (!u_cameraPos) {
+    console.log('Failed to get the storage location of u_cameraPos');
+    return;
+  }
+
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if (!u_lightOn) {
+    console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
 
 
   //get the storage of the size
@@ -240,6 +309,14 @@ function connectVariablesToGLSL() {
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, identity.elements)
 
 
+  u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
+  if (!u_NormalMatrix) {
+    console.log('Failed to get the storage location of u_NormalMatrix');
+    return;
+  }
+  gl.uniformMatrix4fv(u_NormalMatrix, false, identity.elements)
+
+
 }
 
 
@@ -262,13 +339,14 @@ function addActions() { // for connecting to html functions
   document.getElementById("fov").addEventListener('mousemove', function () { g_fov = this.value })
 
   //check change in sliders
-  //document.getElementById("camera_slide").addEventListener('mousemove',function(){ global_angle_x = this.valueAsNumber; })
-  //document.getElementById("yellow_slide").addEventListener('mousemove', function () { g_yellow_ang = this.valueAsNumber; })
-  //document.getElementById("magenta_slide").addEventListener('mousemove', function () { g_magenta_ang = this.valueAsNumber; })
+  document.getElementById("pointX_slide").addEventListener('mousemove',function(){ g_lightpos[0] = this.valueAsNumber/10; })
+  document.getElementById("pointY_slide").addEventListener('mousemove', function () { g_lightpos[1] = this.valueAsNumber/10; })
+  document.getElementById("pointZ_slide").addEventListener('mousemove', function () { g_lightpos[2] = this.valueAsNumber/10; })
 
   //foilage generation
   //document.getElementById("foilage").addEventListener('mousemove', function () { foilage_amount = this.valueAsNumber; })
   document.getElementById("norms").onclick = function () { g_norms = !g_norms }
+  document.getElementById("lights").onclick = function () { g_lightBool = !g_lightBool; }
 
 
   //background color sliders
@@ -539,6 +617,8 @@ g_skybox.textureNum = 2;
 
 let g_sphere = new Sphere();
 
+let g_light = new Cube();
+
 function renderAllShapes() {
 
   //start timer for performance tracking
@@ -580,18 +660,31 @@ function renderAllShapes() {
 
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMax.elements)
 
+  gl.uniform1i(u_lightOn, g_lightBool);
+
+  gl.uniform3f(u_cameraPos,g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2]);
+
+  gl.uniform3f(u_lightPos, g_lightpos[0] + Math.cos(g_seconds),g_lightpos[1]+Math.sin(g_seconds),g_lightpos[2]);
+  g_light.color = [2,2,0,1];
+  g_light.textureNum = -2;
+  g_light.matrix.setTranslate(g_lightpos[0] + Math.cos(g_seconds),g_lightpos[1]+Math.sin(g_seconds),g_lightpos[2]);
+  g_light.matrix.scale(-.1,-.1,-.1);
+  g_light.matrix.translate(-.5,-.5,-.5);
+  g_light.render();
+
+
 
   g_map.render();
 
   g_skybox.matrix.setTranslate(g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2])
-  g_skybox.matrix.scale(-100, -100, -100);
+  g_skybox.matrix.scale(-100, -100, 100);
   g_skybox.matrix.rotate(180, 1, 0, 0);
   g_skybox.matrix.rotate(g_seconds, 0, 1, 0);
   g_skybox.matrix.translate(-.5, -.5, -.5);
 
 
 
-  g_skybox.render();
+  //g_skybox.render();
 
 
   g_sphere.matrix.setTranslate(14, 3, 14)
