@@ -34,8 +34,10 @@ uniform sampler2D u_Sampler2;
 uniform sampler2D u_Sampler3;
 uniform sampler2D u_Sampler4;
 uniform vec3 u_lightPos;
+uniform vec3 u_spotLightPos;
 uniform vec3 u_cameraPos;
 uniform bool u_lightOn;
+uniform vec3 u_lightColor;
 uniform int u_whichTexture;
 void main() {
   if(u_whichTexture == -2) {
@@ -60,6 +62,8 @@ void main() {
   //u_lightPos = vect3(1,1,1);
 
   vec3 lightVect = u_lightPos - vec3(v_VertPos);
+  vec3 spotLightVect =  u_spotLightPos - vec3(v_VertPos);
+
   float r = length(lightVect);
 
   //if(r < 1.0){
@@ -82,15 +86,32 @@ void main() {
   vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
 
   //specular
-  float specular = pow(max(dot(E,R),0.0),32.0); 
+  float specular = pow(max(dot(E,R),0.0),32.0) * (length(u_lightColor)/3.0); 
 
+  //spotlight vars
+  vec3 down = vec3(0,1,0);
+  vec3 SL = normalize(spotLightVect);
+  float nDotSL = max(dot(N,SL),0.0);
 
+  float downDotSL = max(dot(down,SL),0.0);
+
+  vec3 SR = reflect(-SL,N);
+  float spotSpecular = pow(max(dot(E,SR),0.0),32.0)/3.0; 
+  vec3 spotDiffuse = (vec3(gl_FragColor) * nDotSL)/3.0;
+
+  if(downDotSL < 0.7){
+    spotSpecular = 0.0;
+    spotDiffuse = vec3(0.0,0.0,0.0);
+  }
 
   vec3 diffuse = vec3(gl_FragColor) * nDotL;
+  diffuse[0] = diffuse[0] * u_lightColor[0];
+  diffuse[1] = diffuse[1] * u_lightColor[1];
+  diffuse[2] = diffuse[2] * u_lightColor[2];
   vec3 ambient = vec3(gl_FragColor) * 0.3;
 
   if(u_lightOn){
-    gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
+    gl_FragColor = vec4(specular+spotSpecular+diffuse+spotDiffuse+ambient, 1.0);
   }
   
 
@@ -133,8 +154,10 @@ let a_UV;
 let a_Normal;
 
 let u_lightPos;
+let u_spotLightPos;
 let u_cameraPos;
 let u_lightOn;
+let u_lightColor;
 
 
 let global_angle_x = 0;
@@ -159,7 +182,10 @@ let g_block = 0;
 let g_norms = false;
 let g_lightBool = true;
 
-let g_lightpos = [13,5,13]
+let g_lightpos = [13,5,13];
+let g_spotLightpos = [22,8,22];
+
+let g_lightColor = [1,1,1];
 
 
 
@@ -254,6 +280,12 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_spotLightPos = gl.getUniformLocation(gl.program, 'u_spotLightPos');
+  if (!u_spotLightPos) {
+    console.log('Failed to get the storage location of u_spotLightPos');
+    return;
+  }
+
   u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
   if (!u_cameraPos) {
     console.log('Failed to get the storage location of u_cameraPos');
@@ -263,6 +295,12 @@ function connectVariablesToGLSL() {
   u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
   if (!u_lightOn) {
     console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
+
+  u_lightColor = gl.getUniformLocation(gl.program, 'u_lightColor');
+  if (!u_lightColor) {
+    console.log('Failed to get the storage location of u_lightColor');
     return;
   }
 
@@ -342,6 +380,10 @@ function addActions() { // for connecting to html functions
   document.getElementById("pointX_slide").addEventListener('mousemove',function(){ g_lightpos[0] = this.valueAsNumber/10; })
   document.getElementById("pointY_slide").addEventListener('mousemove', function () { g_lightpos[1] = this.valueAsNumber/10; })
   document.getElementById("pointZ_slide").addEventListener('mousemove', function () { g_lightpos[2] = this.valueAsNumber/10; })
+
+  document.getElementById("pointR_slide").addEventListener('mousemove',function(){ g_lightColor[0] = this.valueAsNumber/100; })
+  document.getElementById("pointG_slide").addEventListener('mousemove', function () { g_lightColor[1] = this.valueAsNumber/100; })
+  document.getElementById("pointB_slide").addEventListener('mousemove', function () { g_lightColor[2] = this.valueAsNumber/100; })
 
   //foilage generation
   //document.getElementById("foilage").addEventListener('mousemove', function () { foilage_amount = this.valueAsNumber; })
@@ -619,6 +661,8 @@ let g_sphere = new Sphere();
 
 let g_light = new Cube();
 
+let g_spotLight = new Cube();
+
 function renderAllShapes() {
 
   //start timer for performance tracking
@@ -664,13 +708,24 @@ function renderAllShapes() {
 
   gl.uniform3f(u_cameraPos,g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2]);
 
+  gl.uniform3f(u_lightColor, g_lightColor[0], g_lightColor[1], g_lightColor[2]);
+
   gl.uniform3f(u_lightPos, g_lightpos[0] + Math.cos(g_seconds),g_lightpos[1]+Math.sin(g_seconds),g_lightpos[2]);
+  gl.uniform3f(u_spotLightPos, g_spotLightpos[0],g_spotLightpos[1],g_spotLightpos[2]);
   g_light.color = [2,2,0,1];
   g_light.textureNum = -2;
   g_light.matrix.setTranslate(g_lightpos[0] + Math.cos(g_seconds),g_lightpos[1]+Math.sin(g_seconds),g_lightpos[2]);
   g_light.matrix.scale(-.1,-.1,-.1);
   g_light.matrix.translate(-.5,-.5,-.5);
   g_light.render();
+
+  
+  g_spotLight.color = [0,0,1,1];
+  g_spotLight.textureNum = -2;
+  g_spotLight.matrix.setTranslate(g_spotLightpos[0],g_spotLightpos[1],g_spotLightpos[2]);
+  g_spotLight.matrix.scale(-.1,-.1,-.1);
+  g_spotLight.matrix.translate(-.5,-.5,-.5);
+  g_spotLight.render();
 
 
 
