@@ -5,16 +5,34 @@ import {OBJLoader} from './lib/addons/OBJLoader.js';
 import {MTLLoader} from './lib/addons/MTLLoader.js';
 import {GLTFLoader} from './lib/addons/GLTFLoader.js';
 import {OrbitControls} from './lib/addons/OrbitControls.js';
+import {Player} from './Player.js';
 
 //wack ass onload work around
 window.onload = function() {main()}
 
+//GLOBALS
+let g_canvas;
+let g_renderer;
+let g_camera; //move into player at some point
+let g_scene;
+
+let g_shapes; //temp
+
+let g_player;
+
+let g_controlls; //temp
+
+let g_musicbox;
+
+let g_clock = new THREE.Clock();
 
 function main(){
     //console.log("hello world");
     //set up Three.js
     const canvas = document.querySelector('#c');
+    g_canvas = canvas;
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+    g_renderer = renderer;
 
     //create cammera
     const fov = 75;
@@ -27,10 +45,13 @@ function main(){
     camera.position.z = 4;
     camera.position.y = 4;
     camera.position.x = 4;
+    g_camera = camera;
 
-    const controls = new OrbitControls(camera, renderer.domElement);
+    g_controlls = new OrbitControls(camera, g_renderer.domElement);
+    //g_controlls.target = new THREE.Vector3(4,0,4)
     //create scene
     const scene = new THREE.Scene();
+    g_scene = scene;
 
     { // create light 
         const color = 0xFFFFFF;
@@ -60,7 +81,7 @@ function main(){
     const geometry = new THREE.TorusGeometry(torRad, tubeRad, torRadSegs, tubSegs);
 
     //make music box
-    var musicBox;
+    //var musicBox;
     const mtlLoader = new MTLLoader();
     mtlLoader.load('./Objs/music_box.mtl', (mtl) => {
         mtl.preload();
@@ -74,23 +95,37 @@ function main(){
             root.position.y = 2;
             root.position.x = 4;
             
-            musicBox = root;
+            g_musicbox = root;
         });
     });
     
 
     
     const gltfLoader = new GLTFLoader();
-    const url = "./glb/scene.gltf";
+    let url = "./glb/scene.gltf";
     gltfLoader.load(url, (gltf) => {
         const root = gltf.scene;
+        
         scene.add(root);
 
     });
-    
+
+    //const gltfLoader = new GLTFLoader();
+    //spawn robot
+    g_player = new Player(scene);
+    /*
+    url = "./glb/UV_the_robot.glb";
+    gltfLoader.load(url, (gltf) => {
+        const root = gltf.scene;
+
+        root.scale.set(.6,.6,.6);
+        scene.add(root);
+
+    });
+    */
 
     //create geometry
-    const shapes = [
+    g_shapes = [
         makeInstance(box, 0xF5A9B8,  1, 5, 2),
         makeInstance(box, 0x5BCEFA,  4, 1, 8),
         makeInstance(box, 0xF5A9B8,  3, 2, -8),
@@ -106,7 +141,7 @@ function main(){
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load( './Imgs/silly.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
-    shapes[0].material =  new THREE.MeshBasicMaterial({map: texture});
+    g_shapes[0].material =  new THREE.MeshBasicMaterial({map: texture});
 
 
     //skybox
@@ -123,63 +158,49 @@ function main(){
         scene.background = texture;
     }
 
-    //create material using css hex codes
-    //const material = new THREE.MeshBasicMaterial({color: 0x44aa88}); //MeshBasicMaterial is not affected by lights
-    //const material = new THREE.MeshPhongMaterial({color: 0x44aa88}); //MeshPhongMaterial is affected by lights
-
-    //add the cube to the scene
-    //const cube = new THREE.Mesh(geometry, material);
-    //scene.add(cube);
-
 
     renderer.render(scene, camera);
 
-    function makeInstance(geometry, color, x, y, z) { // returns the following geometry
-        const material = new THREE.MeshPhongMaterial({color});
-       
-        const shape = new THREE.Mesh(geometry, material);
-        scene.add(shape);
-       
-        shape.position.x = x;
-        shape.position.y = y;
-        shape.position.z = z;
-       
-        return shape;
-    }
+    
 
     
-    //function that renders the whole scene and is called with requestAnimationFrame
-    function render(time) {
-        time *= 0.001;  // convert time to seconds
-
-        controls.update();
-       
-        //fix stretch
-        if (resizeRendererToDisplaySize(renderer)) {//check if the display needs to be updated
-            const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-        }
-        
-
-        shapes.forEach((shape, ndx) => {//rotate all the s
-            const speed = 1 + ndx * .1;
-            const rot = time * speed;
-            shape.rotation.x = rot;
-            shape.rotation.y = rot;
-        });
-
-        //musicBox.rotation.x = time * 3;
-        if (musicBox) {
-            musicBox.rotation.y = time * 3;
-        }
-        
-       
-        renderer.render(scene, camera);//render the next frame
-       
-        requestAnimationFrame(render);
-    }
+    
     requestAnimationFrame(render); // calls the render function and passes time since last render
+}
+
+
+//function that renders the whole scene and is called with requestAnimationFrame
+function render(time) {
+    g_player.Update();
+
+    time *= 0.001;  // convert time to seconds
+
+    g_controlls.update();
+   
+    //fix stretch
+    if (resizeRendererToDisplaySize(g_renderer)) {//check if the display needs to be updated
+        const canvas = g_renderer.domElement;
+        g_camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        g_camera.updateProjectionMatrix();
+    }
+    
+
+    g_shapes.forEach((shape, ndx) => {//rotate all the shapes
+        const speed = 1 + ndx * .1;
+        const rot = time * speed;
+        shape.rotation.x = rot;
+        shape.rotation.y = rot;
+    });
+
+    //musicBox.rotation.x = time * 3;
+    if (g_musicbox) {
+        g_musicbox.rotation.y = time * 3;
+    }
+    
+   
+    g_renderer.render(g_scene, g_camera);//render the next frame
+   
+    requestAnimationFrame(render);
 }
 
 function resizeRendererToDisplaySize(renderer) {
@@ -191,6 +212,19 @@ function resizeRendererToDisplaySize(renderer) {
       renderer.setSize(width, height, false);
     }
     return needResize;
+}
+
+function makeInstance(geometry, color, x, y, z) { // returns the following geometry
+    const material = new THREE.MeshPhongMaterial({color});
+   
+    const shape = new THREE.Mesh(geometry, material);
+    g_scene.add(shape);
+   
+    shape.position.x = x;
+    shape.position.y = y;
+    shape.position.z = z;
+   
+    return shape;
 }
 
 //main();
