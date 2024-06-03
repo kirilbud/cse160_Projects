@@ -59,6 +59,18 @@ export class Player {
             return
         }
 
+        let timeDelta = this.clock.getDelta();
+
+
+        let forward = new THREE.Vector3(0,0,-1);
+        forward.applyAxisAngle(this.up, this.controlls.getAzimuthalAngle());
+
+        let LR_vector = new THREE.Vector3();
+        LR_vector.crossVectors(forward, this.up);
+        LR_vector.normalize();
+
+        let wanted_vector = new THREE.Vector3();
+
         
 
         //get actions
@@ -68,6 +80,8 @@ export class Player {
         const idleClip = THREE.AnimationClip.findByName(this.animations, 'Idle');
         const idleAct = this.mixer.clipAction(idleClip);
 
+
+        //set camera to bot and set offset
         const camOffset = new THREE.Vector3(0,2.5,0);
 
         this.controlls.target = this.position.clone();
@@ -76,17 +90,53 @@ export class Player {
         
 
         //check if a moving key has been pressed
-        if (!(this._input._keys.forward || this._input._keys.backward || this._input._keys.left || this._input._keys.right)) {
+        if (!(this._input._keys.forward || this._input._keys.backward || this._input._keys.left || this._input._keys.right)) { //idle
             //console.log("idle");
             runAct.stop();
             idleAct.play();
 
 
-        }else{
+        }else{ //running
             //make bot match the camera angle
             runAct.play();
             idleAct.stop();
-            this.bot.rotation.y = this.controlls.getAzimuthalAngle() + Math.PI;
+
+            //create wanted vector from key input
+
+            if (this._input._keys.forward) {
+                wanted_vector.add(forward);
+            }
+            if (this._input._keys.backward) {
+                wanted_vector.sub(forward);
+            }
+
+            if (this._input._keys.left) {
+                wanted_vector.sub(LR_vector);
+            }
+            if (this._input._keys.right) {
+                wanted_vector.add(LR_vector);
+            }
+
+            wanted_vector.normalize();
+
+            forward.copy(wanted_vector)
+
+
+            forward.multiplyScalar(timeDelta*15);
+
+
+            //console.log(timeDelta*10)
+
+            this.position.add(forward);
+            
+
+            this.controlls.object.position.x += forward.x;
+            this.controlls.object.position.y += forward.y;
+            this.controlls.object.position.z += forward.z;
+
+            this.bot.lookAt(this.position);
+
+            //this.bot.rotation.y = this.controlls.getAzimuthalAngle() + Math.PI;
         }
 
         //set bot to right position
@@ -95,7 +145,7 @@ export class Player {
         this.bot.position.z = this.position.z;
 
         //update animation
-        this.mixer.update(this.clock.getDelta()*1.5);
+        this.mixer.update(timeDelta*1.5);
     }
 }
 

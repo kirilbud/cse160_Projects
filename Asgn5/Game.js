@@ -49,6 +49,8 @@ function main(){
 
     g_controlls = new OrbitControls(camera, g_renderer.domElement);
     g_controlls.enablePan = false;
+    g_controlls.maxDistance = 7;
+    g_controlls.minDistance = 2;
     console.log(g_controlls.getAzimuthalAngle())
     g_controlls.target = new THREE.Vector3(-4,0,-4);
     //create scene
