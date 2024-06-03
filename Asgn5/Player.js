@@ -2,14 +2,24 @@ import * as THREE from 'three';
 import { GLTFLoader } from './lib/addons/GLTFLoader.js';
 
 export class Player {
-    constructor(scene) {
+    constructor(scene , controlls) {
+        this.controlls = controlls;
+        
+
+        this.up = new THREE.Vector3(0,1,0);
+        this.forward = 
+
+        this.position = new THREE.Vector3(-4,0,-4);
         this._input = new Input();
-        this._stateMachine = new StateMachine();
+        
         //console.log("hello");
         //variables
         this.mixer;
         this.clock = new THREE.Clock();
-        this.animations;
+        this.animations = null;
+
+        this._stateMachine = new CharacterFSM(this.animations, this.mixer);//these will be null cuz of asynch
+        
 
         const gltfLoader = new GLTFLoader();
         let url = "./glb/UV_the_robot.glb";
@@ -20,16 +30,25 @@ export class Player {
             root.position.set(-4, 0, -4);
             scene.add(root);
             this.mixer = new THREE.AnimationMixer(root);
-            //console.log(this.mixer)
+            this.bot = root;
+
+            console.log(this.bot)
             const clips = gltf.animations;
 
             //add all animations to a dictionary
             this.animations = clips;
 
-            console.log(this.animations)
+
+            //pass this into state machine
+            this._stateMachine.actions = this.animations;
+            this._stateMachine.mixer = this.mixer;
+
+            //console.log(this._stateMachine.actions)
             const clip = THREE.AnimationClip.findByName(clips, 'Run');
             const action = this.mixer.clipAction(clip);
             action.play();
+
+
         });
     }
 
@@ -39,7 +58,44 @@ export class Player {
         if (this.mixer == null) {
             return
         }
-        this.mixer.update(this.clock.getDelta());
+
+        
+
+        //get actions
+        const runClip = THREE.AnimationClip.findByName(this.animations, 'Run');
+        const runAct = this.mixer.clipAction(runClip);
+
+        const idleClip = THREE.AnimationClip.findByName(this.animations, 'Idle');
+        const idleAct = this.mixer.clipAction(idleClip);
+
+        const camOffset = new THREE.Vector3(0,2.5,0);
+
+        this.controlls.target = this.position.clone();
+
+        this.controlls.target.add(camOffset);
+        
+
+        //check if a moving key has been pressed
+        if (!(this._input._keys.forward || this._input._keys.backward || this._input._keys.left || this._input._keys.right)) {
+            //console.log("idle");
+            runAct.stop();
+            idleAct.play();
+
+
+        }else{
+            //make bot match the camera angle
+            runAct.play();
+            idleAct.stop();
+            this.bot.rotation.y = this.controlls.getAzimuthalAngle() + Math.PI;
+        }
+
+        //set bot to right position
+        this.bot.position.x = this.position.x;
+        this.bot.position.y = this.position.y;
+        this.bot.position.z = this.position.z;
+
+        //update animation
+        this.mixer.update(this.clock.getDelta()*1.5);
     }
 }
 
@@ -110,6 +166,10 @@ class State{
     constructor(parent){
         this._parent = parent;
     }
+
+    Enter(){}
+    Exit(){}
+    Update(){};
 }
 
 class StateMachine {
@@ -140,16 +200,41 @@ class StateMachine {
 }
 
 class CharacterFSM extends StateMachine{
-    constructor(proxy){
+    constructor(actions, mixer){
         super();
-        this._proxy = proxy;
+        this.mixer = mixer;
+        this.actions = actions;
         this._Init();
     }
 
     _Init(){
-        this._AddState('idle', IdleState);
-        this._AddState('walk', WalkState);
-        this._AddState('run', RunState)
+        this._AddState('Idle', IdleState);
+        //this._AddState('Walk', WalkState);
+        //this._AddState('Run', RunState)
+    }
+}
+
+
+class IdleState extends State{
+
+    
+    constructor(parent){
+        super(parent);
+    }
+
+    //get the name of the this state
+    get Name(){
+        return 'Idle'
+    }
+
+    Enter(prevState){
+        const idleClip = THREE.AnimationClip.findByName(this._parent._proxy.animations, 'Run');
+        const idleact = THREE.AnimationClip.findByName(this._parent._proxy.animations, 'Run');
+        if (prevState) {
+            
+        }else{
+            idleAct.play;
+        }
     }
 }
 

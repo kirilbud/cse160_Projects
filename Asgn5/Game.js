@@ -42,13 +42,15 @@ function main(){
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     //set camera pos
-    camera.position.z = 4;
+    camera.position.z = -10;
     camera.position.y = 4;
-    camera.position.x = 4;
+    camera.position.x = -10;
     g_camera = camera;
 
     g_controlls = new OrbitControls(camera, g_renderer.domElement);
-    //g_controlls.target = new THREE.Vector3(4,0,4)
+    g_controlls.enablePan = false;
+    console.log(g_controlls.getAzimuthalAngle())
+    g_controlls.target = new THREE.Vector3(-4,0,-4);
     //create scene
     const scene = new THREE.Scene();
     g_scene = scene;
@@ -112,7 +114,7 @@ function main(){
 
     //const gltfLoader = new GLTFLoader();
     //spawn robot
-    g_player = new Player(scene);
+    g_player = new Player(scene, g_controlls);
     /*
     url = "./glb/UV_the_robot.glb";
     gltfLoader.load(url, (gltf) => {
@@ -171,6 +173,7 @@ function main(){
 
 //function that renders the whole scene and is called with requestAnimationFrame
 function render(time) {
+    //console.log(g_controlls.getAzimuthalAngle())
     g_player.Update();
 
     time *= 0.001;  // convert time to seconds
@@ -226,5 +229,8 @@ function makeInstance(geometry, color, x, y, z) { // returns the following geome
    
     return shape;
 }
+
+
+
 
 //main();
