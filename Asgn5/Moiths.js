@@ -33,8 +33,8 @@ export class Moiths{
 
             let rule4 = this.center.clone();//all boids should try to go to the center
             rule4.sub(position);
-            //rule4.divideScalar(5000);
-            rule4.divideScalar(5);
+            rule4.divideScalar(5000);
+            //rule4.divideScalar(5);
             this.boids.forEach((boid2) => {
                 //boid2
             });
