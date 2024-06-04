@@ -4,6 +4,7 @@ import {Player} from './Player.js';
 
 export class Moiths{
     constructor(bot, scene){
+        this.clock = new THREE.Clock();
         this.boids = [];
         this.bot = bot; // pass in the bot so the boids can avoid it
         this.scene = scene;
@@ -19,10 +20,12 @@ export class Moiths{
     }
 
     Update(){
+        let timeDelta = this.clock.getDelta();
         this.boids.forEach((boid) => {
             if (!boid.mixer) {
                return 
             }
+            
             let position = boid.position;
             let velocity = boid.volocity;
             
@@ -33,12 +36,52 @@ export class Moiths{
 
             let rule4 = this.center.clone();//all boids should try to go to the center
             rule4.sub(position);
-            rule4.divideScalar(5000);
-            //rule4.divideScalar(5);
+            
+            
+            let numOfBoidsNear = 0;
             this.boids.forEach((boid2) => {
+                if (boid2 == boid) {
+                    return;
+                }
+                let distance = boid2.position.clone().sub(position);
+
+                //if the distance is larger than 3 we dont care
+                if (distance.length() > 2) { //todo check if behind using dot product
+                    return;
+                }
+                numOfBoidsNear += 1;
+
+                rule2.sub(distance)
+
+                rule3.add(boid2.volocity);
+
                 //boid2
             });
+            if (numOfBoidsNear != 0) {
+                rule3.divideScalar(numOfBoidsNear);
+            }
+            
+
+
+
+            rule2.divideScalar(0.5);
+            rule2.multiplyScalar(timeDelta);
+
+            rule3.divideScalar(1.5);
+            rule3.multiplyScalar(timeDelta);
+
+            rule4.divideScalar(8);
+            rule4.multiplyScalar(timeDelta);
+            //console.log(burger)
+            //add all the rules together
+            boid.volocity.add(rule2);
+            boid.volocity.add(rule3);
+            //console.log(rule3)
+
             boid.volocity.add(rule4);
+
+            boid.volocity.normalize()
+
             boid.Update()
         });
     }
@@ -59,7 +102,7 @@ class Moith{
         this.position.y += -.5;
         this.position.z += -.5;
         this.position.multiplyScalar(20);
-        this.position.y += 10;
+        this.position.y += 15;
 
         this.animationOffset = Math.random();
 
