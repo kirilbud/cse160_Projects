@@ -122,7 +122,7 @@ export class Player {
             forward.copy(wanted_vector)
 
 
-            forward.multiplyScalar(timeDelta*15);
+            forward.multiplyScalar(timeDelta*11);
 
 
             //console.log(timeDelta*10)
@@ -145,7 +145,7 @@ export class Player {
         this.bot.position.z = this.position.z;
 
         //update animation
-        this.mixer.update(timeDelta*1.5);
+        this.mixer.update(timeDelta*1.2);
     }
 }
 
@@ -173,7 +173,7 @@ class Input {
     }
 
     onKeyDown(ev, down) { //gets the key down and if its up or not
-        ev.preventDefault();
+        //ev.preventDefault();
         //console.log("ev = " + ev);
         switch (ev.keyCode) {
             case 87: //w key

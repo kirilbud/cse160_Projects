@@ -6,6 +6,7 @@ import {MTLLoader} from './lib/addons/MTLLoader.js';
 import {GLTFLoader} from './lib/addons/GLTFLoader.js';
 import {OrbitControls} from './lib/addons/OrbitControls.js';
 import {Player} from './Player.js';
+import {Moiths} from './Moiths.js';
 
 //wack ass onload work around
 window.onload = function() {main()}
@@ -19,6 +20,7 @@ let g_scene;
 let g_shapes; //temp
 
 let g_player;
+let g_boids;
 
 let g_controlls; //temp
 
@@ -49,7 +51,7 @@ function main(){
 
     g_controlls = new OrbitControls(camera, g_renderer.domElement);
     g_controlls.enablePan = false;
-    g_controlls.maxDistance = 7;
+    g_controlls.maxDistance = 11;
     g_controlls.minDistance = 2;
     console.log(g_controlls.getAzimuthalAngle())
     g_controlls.target = new THREE.Vector3(-4,0,-4);
@@ -117,6 +119,11 @@ function main(){
     //const gltfLoader = new GLTFLoader();
     //spawn robot
     g_player = new Player(scene, g_controlls);
+    g_boids = new Moiths(g_player, scene);
+
+    //make boids
+
+
     /*
     url = "./glb/UV_the_robot.glb";
     gltfLoader.load(url, (gltf) => {
@@ -177,6 +184,7 @@ function main(){
 function render(time) {
     //console.log(g_controlls.getAzimuthalAngle())
     g_player.Update();
+    g_boids.Update();
 
     time *= 0.001;  // convert time to seconds
 
