@@ -7,6 +7,7 @@ import {GLTFLoader} from './lib/addons/GLTFLoader.js';
 import {OrbitControls} from './lib/addons/OrbitControls.js';
 import {Player} from './Player.js';
 import {Moiths} from './Moiths.js';
+import {Water} from './lib/addons/Water.js';
 
 //wack ass onload work around
 window.onload = function() {main()}
@@ -26,6 +27,12 @@ let g_controlls; //temp
 
 let g_musicbox;
 
+let g_Moon;
+
+let g_Water;
+
+const g_raycaster = new THREE.Raycaster();
+
 let g_clock = new THREE.Clock();
 
 function main(){
@@ -40,7 +47,7 @@ function main(){
     const fov = 75;
     const aspect = 2;  // the canvas default
     const near = 0.1;
-    const far = 100;
+    const far = 1000;
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     //set camera pos
@@ -59,9 +66,11 @@ function main(){
     const scene = new THREE.Scene();
     g_scene = scene;
 
+
+
     { // create light 
-        const color = 0xFFFFFF;
-		const intensity = 3;
+        const color = 0xCBC3E3;
+		const intensity = 7;
 		const light = new THREE.DirectionalLight( color, intensity );
 		light.position.set( - 1, 2, 4 );
 		scene.add( light );
@@ -99,7 +108,7 @@ function main(){
         music_box.load('./Objs/music_box.obj', (root) => {
             scene.add(root);
             root.position.y = 2;
-            root.position.x = 4;
+            root.position.x = -4;
             
             g_musicbox = root;
         });
@@ -109,19 +118,56 @@ function main(){
     
     const gltfLoader = new GLTFLoader();
     let url = "./glb/scene.gltf";
+    /*
     gltfLoader.load(url, (gltf) => {
         const root = gltf.scene;
         
         scene.add(root);
 
     });
+    */
+    
 
     //const gltfLoader = new GLTFLoader();
     //spawn robot
     g_player = new Player(scene, g_controlls);
-    g_boids = new Moiths(g_player, scene);
 
     //make boids
+    g_boids = new Moiths(g_player, scene);
+
+
+    //gltfLoader = new GLTFLoader();
+    url = "./glb/moon.glb";
+    gltfLoader.load(url, (gltf) => {
+        const root = gltf.scene;
+        root.scale.set(3, 3, 3);
+        g_Moon = root;
+
+        g_Moon.position.y = g_boids.center.y;
+
+        scene.add(root);
+
+    });
+
+    const waterMesh = new THREE.PlaneGeometry( 5000, 5000 );
+
+    g_Water = new Water(waterMesh,{
+        textureWidth: 512,
+        textureHight: 512,
+        waterNormals: new THREE.TextureLoader().load('./Textures/water/waternormals.jpg', function(texture){
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        }),
+
+        sunDirection: new THREE.Vector3( 1, -2, -4),
+        sunColor: 0x4f42b5,
+        waterColor: 0x05014a,
+        distortionScale: 1,
+        fog: scene.fog !== undefined
+    });
+
+    g_Water.rotation.x = -Math.PI / 2;
+    
+    scene.add(g_Water);
 
 
     /*
@@ -136,6 +182,7 @@ function main(){
     */
 
     //create geometry
+    /*
     g_shapes = [
         makeInstance(box, 0xF5A9B8,  1, 5, 2),
         makeInstance(box, 0x5BCEFA,  4, 1, 8),
@@ -148,11 +195,11 @@ function main(){
         makeInstance(geometry, 0xffffff,  -6, 2, -3),
         makeInstance(geometry, 0xF5A9B8,  -2, 4, 3),
     ];
-
+    */
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load( './Imgs/silly.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
-    g_shapes[0].material =  new THREE.MeshBasicMaterial({map: texture});
+    //g_shapes[0].material =  new THREE.MeshBasicMaterial({map: texture});
 
 
     //skybox
@@ -172,7 +219,8 @@ function main(){
 
     renderer.render(scene, camera);
 
-    
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('mouseup', unClick);
 
     
     
@@ -186,7 +234,11 @@ function render(time) {
     g_player.Update();
     g_boids.Update();
 
+    
+
     time *= 0.001;  // convert time to seconds
+
+    g_Water.material.uniforms['time'].value += 1.0 / 600.0;
 
     g_controlls.update();
    
@@ -197,19 +249,24 @@ function render(time) {
         g_camera.updateProjectionMatrix();
     }
     
-
+    /*
     g_shapes.forEach((shape, ndx) => {//rotate all the shapes
         const speed = 1 + ndx * .1;
         const rot = time * speed;
         shape.rotation.x = rot;
         shape.rotation.y = rot;
     });
-
+    */
+    
     //musicBox.rotation.x = time * 3;
     if (g_musicbox) {
         g_musicbox.rotation.y = time * 3;
     }
     
+
+    if (g_Moon) {
+        g_Moon.rotation.y = time /5;
+    }
    
     g_renderer.render(g_scene, g_camera);//render the next frame
    
@@ -240,7 +297,29 @@ function makeInstance(geometry, color, x, y, z) { // returns the following geome
     return shape;
 }
 
+function onClick(ev){
+    const canvas = g_renderer.domElement;
+    const cursorX = (ev.clientX / canvas.clientWidth) * 2 -1;
+    const cursorY = -((ev.clientY / canvas.clientHeight) * 2 -1);
+    const coords = new THREE.Vector2(cursorX,cursorY);
+    g_raycaster.setFromCamera(coords, g_camera);
+ 
+    const moons = g_raycaster.intersectObject(g_Moon, true);
+    
 
+    if (moons.length > 0) {
+        //console.log("AMONGUS")
+        g_boids.moonPullFalse();
+    }
+
+}
+
+function unClick(ev){
+    
+    g_boids.moonPullTrue();
+    
+
+}
 
 
 //main();

@@ -17,6 +17,17 @@ export class Moiths{
             this.boids.push(boid);
         }
 
+        this.moonPull = true;
+
+    }
+
+    moonPullTrue(){
+        this.moonPull = true;
+        //console.log("sans")
+    }
+
+    moonPullFalse(){
+        this.moonPull = false;
     }
 
     Update(){
@@ -87,7 +98,12 @@ export class Moiths{
             boid.volocity.add(rule3);
             //console.log(rule3)
 
-            boid.volocity.add(rule4);
+            if (this.moonPull) {
+                boid.volocity.add(rule4);
+            }else{
+                boid.volocity.sub(rule4);
+            }
+            
 
             boid.volocity.normalize()
             boid.volocity.multiplyScalar(1.5);
