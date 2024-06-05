@@ -35,6 +35,8 @@ const g_raycaster = new THREE.Raycaster();
 
 let g_clock = new THREE.Clock();
 
+let g_music = new Audio('./music/made_in_like20min.mp3');
+
 function main(){
     //console.log("hello world");
     //set up Three.js
@@ -108,7 +110,7 @@ function main(){
         music_box.load('./Objs/music_box.obj', (root) => {
             scene.add(root);
             root.position.y = 2;
-            root.position.x = -4;
+            root.position.x = -15;
             
             g_musicbox = root;
         });
@@ -312,6 +314,16 @@ function onClick(ev){
         g_boids.moonPullFalse();
     }
 
+    const box =  g_raycaster.intersectObject(g_musicbox, true);
+    if (box.length > 0) {
+        
+        if (g_music.paused) {
+            g_music.play();
+        }else{
+            g_music.pause();
+            g_music.currentTime = 0;
+        }
+    }
 }
 
 function unClick(ev){
