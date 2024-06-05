@@ -324,6 +324,12 @@ function onClick(ev){
             g_music.currentTime = 0;
         }
     }
+
+
+    const chest =  g_raycaster.intersectObject(g_boids.box, true);
+    if (chest.length > 0) {
+        g_boids.OpenBox();
+    }
 }
 
 function unClick(ev){

@@ -8,6 +8,9 @@ export class Moiths{
         this.boids = [];
         this.bot = bot; // pass in the bot so the boids can avoid it
         this.scene = scene;
+        this.box;
+        this.mixer;
+        this.boxOpen;
 
         this.center = new THREE.Vector3(0,15,0);
 
@@ -19,6 +22,57 @@ export class Moiths{
 
         this.moonPull = true;
 
+
+
+        const gltfLoader = new GLTFLoader();
+        let url = "./glb/box.glb";
+        gltfLoader.load(url, (gltf) => {
+            const root = gltf.scene;
+
+            //root.scale.set(.6, .6, .6);
+            //root.position.copy(this.position);
+
+
+
+            this.scene.add(root);
+            this.mixer = new THREE.AnimationMixer(root);
+            this.box = root;
+            this.box.rotation.y = Math.PI;
+
+            //console.log(this.bot)
+            const clips = gltf.animations;
+            const clip = THREE.AnimationClip.findByName(clips, 'Open');
+
+            const action = this.mixer.clipAction(clip);
+            this.boxOpen = action;
+            this.boxOpen.setLoop(THREE.LoopOnce);
+            //this.boxOpen.clampWhenFinished = true;
+            //this.boxOpen.enable = true;
+            //action.play();
+
+        });
+    }
+
+    OpenBox(){
+        console.log(this.boxOpen)
+        
+        let boid1 = new Moith(this.scene);
+        boid1.position = new THREE.Vector3(0,.1,0);
+        boid1.volocity = new THREE.Vector3(0,1,0);
+        this.boids.push(boid1);
+
+        let boid2 = new Moith(this.scene);
+        boid2.position = new THREE.Vector3(0,.1,1);
+        boid2.volocity = new THREE.Vector3(0,1,0);
+        this.boids.push(boid2);
+
+        let boid3 = new Moith(this.scene);
+        boid3.position = new THREE.Vector3(0,.1,-1);
+        boid3.volocity = new THREE.Vector3(0,1,0);
+        this.boids.push(boid3);
+
+        this.boxOpen.play().reset();
+        this.boxOpen.play();
     }
 
     moonPullTrue(){
@@ -109,6 +163,12 @@ export class Moiths{
             boid.volocity.multiplyScalar(1.5);
             boid.Update()
         });
+
+        if (this.mixer) {
+            this.mixer.update(timeDelta*1 );
+        }
+        
+
     }
 }
 
