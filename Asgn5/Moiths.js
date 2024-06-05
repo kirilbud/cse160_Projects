@@ -61,13 +61,22 @@ export class Moiths{
                 rule3.divideScalar(numOfBoidsNear);
             }
             
-
+            let BotPos = this.bot.position.clone();
+            //console.log(BotPos)
+            BotPos.y += 1;
+            let distToBot = BotPos.sub(position);
+            //console.log(distToBot)
+            if (distToBot.length() < 7) {
+                //console.log("BotPos")
+                distToBot.multiplyScalar(1);
+                rule2.sub(distToBot);
+            }
 
 
             rule2.divideScalar(0.5);
             rule2.multiplyScalar(timeDelta);
 
-            rule3.divideScalar(1.5);
+            rule3.divideScalar(1);
             rule3.multiplyScalar(timeDelta);
 
             rule4.divideScalar(8);
@@ -81,7 +90,7 @@ export class Moiths{
             boid.volocity.add(rule4);
 
             boid.volocity.normalize()
-
+            boid.volocity.multiplyScalar(1.5);
             boid.Update()
         });
     }
