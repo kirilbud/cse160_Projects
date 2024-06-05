@@ -63,7 +63,7 @@ export class Moiths{
             
             let BotPos = this.bot.position.clone();
             //console.log(BotPos)
-            BotPos.y += 1;
+            BotPos.y += 2;
             let distToBot = BotPos.sub(position);
             //console.log(distToBot)
             if (distToBot.length() < 7) {

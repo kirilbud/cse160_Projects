@@ -122,7 +122,7 @@ export class Player {
             forward.copy(wanted_vector)
 
 
-            forward.multiplyScalar(timeDelta*11);
+            forward.multiplyScalar(timeDelta*16);
 
 
             //console.log(timeDelta*10)
@@ -145,7 +145,7 @@ export class Player {
         this.bot.position.z = this.position.z;
 
         //update animation
-        this.mixer.update(timeDelta*1.2);
+        this.mixer.update(timeDelta*1.3);
     }
 }
 
